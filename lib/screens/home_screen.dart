@@ -5,6 +5,7 @@ import 'package:isar/isar.dart';
 import '../collections/action_name.dart';
 import '../collections/category_name.dart';
 import '../collections/record.dart';
+import '../controllers/controllers_mixin.dart';
 import '../extensions/extensions.dart';
 import '../repository/action_names_repository.dart';
 import '../repository/category_names_repository.dart';
@@ -25,7 +26,7 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<HomeScreen> {
   List<CategoryName>? categoryNameList;
 
   List<ActionName>? actionNameList;
@@ -42,16 +43,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _makeActionNameList();
   }
 
-  bool makeRecordListFlag = false;
-
   ///
   @override
   Widget build(BuildContext context) {
-    if (!makeRecordListFlag) {
-      _makeRecordList();
-
-      makeRecordListFlag = true;
-    }
+    _makeRecordList();
 
     return Scaffold(
       appBar: AppBar(
@@ -81,91 +76,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Padding(
           padding: const EdgeInsets.all(10),
 
-          // ignore: always_specify_types
-          child: FutureBuilder(
-            future: getFutureRecordList(),
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 60, child: displayYearmonthList()),
 
-            builder: (BuildContext context, AsyncSnapshot<List<Record>> snapshot) {
-              if (snapshot.hasData) {
-                return ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    int sagaku = 0;
-                    if (index > 0) {
-                      sagaku = snapshot.data![index - 1].price - snapshot.data![index].price;
-                    }
+              Divider(color: Colors.white.withValues(alpha: 0.3), thickness: 5),
 
-                    return ListTile(
-                      title: Container(
-                        decoration: BoxDecoration(
-                          border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.3))),
-                        ),
-
-                        child: DefaultTextStyle(
-                          style: const TextStyle(fontSize: 12),
-                          child: Row(
-                            children: <Widget>[
-                              Container(
-                                width: 50,
-                                alignment: Alignment.topLeft,
-
-                                child: (index == 0)
-                                    ? const SizedBox.shrink()
-                                    : CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
-                              ),
-
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(snapshot.data![index].date),
-
-                                    if (index == 0)
-                                      Text(snapshot.data![index].price.toString().toCurrency())
-                                    else
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: <Widget>[
-                                          Text(snapshot.data![index].price.toString().toCurrency()),
-
-                                          Text(
-                                            sagaku.toString().toCurrency(),
-                                            style: const TextStyle(color: Colors.grey),
-                                          ),
-                                        ],
-                                      ),
-                                  ],
-                                ),
-                              ),
-
-                              const SizedBox(width: 20),
-
-                              IconButton(
-                                onPressed: () {
-                                  RakutenPointsDialog(
-                                    context: context,
-                                    widget: RecordInputAlert(
-                                      isar: widget.isar,
-
-                                      categoryNameList: categoryNameList,
-                                      actionNameList: actionNameList,
-                                      record: snapshot.data![index],
-                                    ),
-                                  );
-                                },
-                                icon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.3)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }
-
-              return const SizedBox.shrink();
-            },
+              Expanded(child: displayRakutenPointList()),
+            ],
           ),
         ),
       ),
@@ -223,6 +141,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   ///
+  Widget displayYearmonthList() {
+    final List<String> yearmonth = <String>[];
+
+    recordList?.forEach((Record element) {
+      final List<String> exDate = element.date.split('-');
+
+      if (!yearmonth.contains('${exDate[0]}-${exDate[1]}')) {
+        yearmonth.add('${exDate[0]}-${exDate[1]}');
+      }
+    });
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: yearmonth.map((String e) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: GestureDetector(
+              onTap: () {
+                appParamNotifier.setSelectedListYearmonth(yearmonth: e);
+              },
+              child: CircleAvatar(
+                backgroundColor: (e == appParamState.selectedListYearmonth)
+                    ? Colors.yellowAccent.withValues(alpha: 0.2)
+                    : Colors.blueGrey.withValues(alpha: 0.2),
+
+                child: Text(e, style: const TextStyle(fontSize: 10)),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  ///
   Future<void> _makeCategoryNameList() async => CategoryNamesRepository()
       .getCategoryNameList(isar: widget.isar)
       .then((List<CategoryName>? value) => categoryNameList = value);
@@ -237,15 +191,83 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) => recordList = value);
 
   ///
-  Future<List<Record>> getFutureRecordList() async {
-    List<Record> list = <Record>[];
+  Widget displayRakutenPointList() {
+    final List<Widget> list = <Widget>[];
 
-    await RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) {
-      if (value != null) {
-        list = value;
+    if (recordList != null) {
+      for (int i = 0; i < recordList!.length; i++) {
+        final int sagaku = (i == 0) ? 0 : recordList![i - 1].price - recordList![i].price;
+
+        if (appParamState.selectedListYearmonth ==
+            '${recordList![i].date.split('-')[0]}-${recordList![i].date.split('-')[1]}') {
+          list.add(
+            Container(
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
+              ),
+
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    width: 50,
+                    alignment: Alignment.topLeft,
+
+                    child: (i == 0)
+                        ? const SizedBox.shrink()
+                        : CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
+                  ),
+
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(recordList![i].date),
+
+                        if (i == 0)
+                          Text(recordList![i].price.toString().toCurrency())
+                        else
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
+                              Text(recordList![i].price.toString().toCurrency()),
+
+                              Text(sagaku.toString().toCurrency(), style: const TextStyle(color: Colors.grey)),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 20),
+
+                  IconButton(
+                    onPressed: () {
+                      RakutenPointsDialog(
+                        context: context,
+                        widget: RecordInputAlert(
+                          isar: widget.isar,
+
+                          categoryNameList: categoryNameList,
+                          actionNameList: actionNameList,
+                          record: recordList![i],
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.3)),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
       }
-    });
+    }
 
-    return list;
+    return SingleChildScrollView(
+      child: DefaultTextStyle(
+        style: const TextStyle(fontSize: 12),
+        child: Column(children: list),
+      ),
+    );
   }
 }

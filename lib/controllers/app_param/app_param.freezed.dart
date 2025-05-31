@@ -19,6 +19,7 @@ mixin _$AppParamState {
   String get selectedDate => throw _privateConstructorUsedError;
   String get selectedCategory => throw _privateConstructorUsedError;
   String get selectedAction => throw _privateConstructorUsedError;
+  String get selectedListYearmonth => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $AppParamStateCopyWith<AppParamState> get copyWith =>
@@ -32,7 +33,10 @@ abstract class $AppParamStateCopyWith<$Res> {
       _$AppParamStateCopyWithImpl<$Res, AppParamState>;
   @useResult
   $Res call(
-      {String selectedDate, String selectedCategory, String selectedAction});
+      {String selectedDate,
+      String selectedCategory,
+      String selectedAction,
+      String selectedListYearmonth});
 }
 
 /// @nodoc
@@ -51,6 +55,7 @@ class _$AppParamStateCopyWithImpl<$Res, $Val extends AppParamState>
     Object? selectedDate = null,
     Object? selectedCategory = null,
     Object? selectedAction = null,
+    Object? selectedListYearmonth = null,
   }) {
     return _then(_value.copyWith(
       selectedDate: null == selectedDate
@@ -65,6 +70,10 @@ class _$AppParamStateCopyWithImpl<$Res, $Val extends AppParamState>
           ? _value.selectedAction
           : selectedAction // ignore: cast_nullable_to_non_nullable
               as String,
+      selectedListYearmonth: null == selectedListYearmonth
+          ? _value.selectedListYearmonth
+          : selectedListYearmonth // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -78,7 +87,10 @@ abstract class _$$AppParamStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String selectedDate, String selectedCategory, String selectedAction});
+      {String selectedDate,
+      String selectedCategory,
+      String selectedAction,
+      String selectedListYearmonth});
 }
 
 /// @nodoc
@@ -95,6 +107,7 @@ class __$$AppParamStateImplCopyWithImpl<$Res>
     Object? selectedDate = null,
     Object? selectedCategory = null,
     Object? selectedAction = null,
+    Object? selectedListYearmonth = null,
   }) {
     return _then(_$AppParamStateImpl(
       selectedDate: null == selectedDate
@@ -109,6 +122,10 @@ class __$$AppParamStateImplCopyWithImpl<$Res>
           ? _value.selectedAction
           : selectedAction // ignore: cast_nullable_to_non_nullable
               as String,
+      selectedListYearmonth: null == selectedListYearmonth
+          ? _value.selectedListYearmonth
+          : selectedListYearmonth // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -119,7 +136,8 @@ class _$AppParamStateImpl implements _AppParamState {
   const _$AppParamStateImpl(
       {this.selectedDate = '',
       this.selectedCategory = '',
-      this.selectedAction = ''});
+      this.selectedAction = '',
+      this.selectedListYearmonth = ''});
 
   @override
   @JsonKey()
@@ -130,10 +148,13 @@ class _$AppParamStateImpl implements _AppParamState {
   @override
   @JsonKey()
   final String selectedAction;
+  @override
+  @JsonKey()
+  final String selectedListYearmonth;
 
   @override
   String toString() {
-    return 'AppParamState(selectedDate: $selectedDate, selectedCategory: $selectedCategory, selectedAction: $selectedAction)';
+    return 'AppParamState(selectedDate: $selectedDate, selectedCategory: $selectedCategory, selectedAction: $selectedAction, selectedListYearmonth: $selectedListYearmonth)';
   }
 
   @override
@@ -146,12 +167,14 @@ class _$AppParamStateImpl implements _AppParamState {
             (identical(other.selectedCategory, selectedCategory) ||
                 other.selectedCategory == selectedCategory) &&
             (identical(other.selectedAction, selectedAction) ||
-                other.selectedAction == selectedAction));
+                other.selectedAction == selectedAction) &&
+            (identical(other.selectedListYearmonth, selectedListYearmonth) ||
+                other.selectedListYearmonth == selectedListYearmonth));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, selectedDate, selectedCategory, selectedAction);
+  int get hashCode => Object.hash(runtimeType, selectedDate, selectedCategory,
+      selectedAction, selectedListYearmonth);
 
   @JsonKey(ignore: true)
   @override
@@ -164,7 +187,8 @@ abstract class _AppParamState implements AppParamState {
   const factory _AppParamState(
       {final String selectedDate,
       final String selectedCategory,
-      final String selectedAction}) = _$AppParamStateImpl;
+      final String selectedAction,
+      final String selectedListYearmonth}) = _$AppParamStateImpl;
 
   @override
   String get selectedDate;
@@ -172,6 +196,8 @@ abstract class _AppParamState implements AppParamState {
   String get selectedCategory;
   @override
   String get selectedAction;
+  @override
+  String get selectedListYearmonth;
   @override
   @JsonKey(ignore: true)
   _$$AppParamStateImplCopyWith<_$AppParamStateImpl> get copyWith =>
