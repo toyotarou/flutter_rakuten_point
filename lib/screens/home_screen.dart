@@ -90,6 +90,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 return ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (BuildContext context, int index) {
+                    int sagaku = 0;
+                    if (index > 0) {
+                      sagaku = snapshot.data![index - 1].price - snapshot.data![index].price;
+                    }
+
                     return ListTile(
                       title: Container(
                         decoration: BoxDecoration(
@@ -100,12 +105,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           style: const TextStyle(fontSize: 12),
                           child: Row(
                             children: <Widget>[
+                              Container(
+                                width: 50,
+                                alignment: Alignment.topLeft,
+
+                                child: (index == 0)
+                                    ? const SizedBox.shrink()
+                                    : CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
+                              ),
+
                               Expanded(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(snapshot.data![index].date),
-                                    Text(snapshot.data![index].price.toString().toCurrency()),
+
+                                    if (index == 0)
+                                      Text(snapshot.data![index].price.toString().toCurrency())
+                                    else
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          Text(snapshot.data![index].price.toString().toCurrency()),
+
+                                          Text(
+                                            sagaku.toString().toCurrency(),
+                                            style: const TextStyle(color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
                                   ],
                                 ),
                               ),
@@ -125,7 +153,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     ),
                                   );
                                 },
-                                icon: const Icon(Icons.edit),
+                                icon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.3)),
                               ),
                             ],
                           ),
@@ -174,11 +202,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Divider(color: Colors.white.withOpacity(0.4), thickness: 5),
 
               TextButton(
-                onPressed: () => RakutenPointsDialog(context: context, widget: DataExportAlert(isar: widget.isar)),
+                onPressed: () => RakutenPointsDialog(
+                  context: context,
+                  widget: DataExportAlert(isar: widget.isar),
+                ),
                 child: const Text('データエクスポート'),
               ),
               TextButton(
-                onPressed: () => RakutenPointsDialog(context: context, widget: DataImportAlert(isar: widget.isar)),
+                onPressed: () => RakutenPointsDialog(
+                  context: context,
+                  widget: DataImportAlert(isar: widget.isar),
+                ),
                 child: const Text('データインポート'),
               ),
             ],
