@@ -5,15 +5,18 @@ import 'package:isar/isar.dart';
 import '../collections/action_name.dart';
 import '../collections/category_name.dart';
 import '../collections/record.dart';
+import '../collections/record_detail.dart';
 import '../controllers/controllers_mixin.dart';
 import '../extensions/extensions.dart';
 import '../repository/action_names_repository.dart';
 import '../repository/category_names_repository.dart';
+import '../repository/record_details_repository.dart';
 import '../repository/records_repository.dart';
 import 'components/action_name_input_alert.dart';
 import 'components/category_name_input_alert.dart';
 import 'components/csv_data/data_export_alert.dart';
 import 'components/csv_data/data_import_alert.dart';
+import 'components/record_detail_list_alert.dart';
 import 'components/record_input_alert.dart';
 import 'parts/rakuten_points_dialog.dart';
 
@@ -33,6 +36,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
   List<Record>? recordList;
 
+  List<RecordDetail>? recordDetailList;
+
+  Map<String, List<RecordDetail>> recordDetailMap = <String, List<RecordDetail>>{};
+
   ///
   @override
   void initState() {
@@ -41,13 +48,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     _makeCategoryNameList();
 
     _makeActionNameList();
+
+    _makeRecordList();
+
+    _makeRecordDetailList();
   }
 
   ///
   @override
   Widget build(BuildContext context) {
-    _makeRecordList();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rakuten Point'),
@@ -62,8 +71,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                 widget: RecordInputAlert(
                   isar: widget.isar,
 
-                  categoryNameList: categoryNameList,
-                  actionNameList: actionNameList,
+                  // categoryNameList: categoryNameList,
+                  // actionNameList: actionNameList,
+                  //
+                  //
+                  //
                 ),
               );
             },
@@ -82,7 +94,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
               Divider(color: Colors.white.withValues(alpha: 0.3), thickness: 5),
 
-              Expanded(child: displayRakutenPointList()),
+              Expanded(child: displayRecordList()),
             ],
           ),
         ),
@@ -191,7 +203,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
       RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) => recordList = value);
 
   ///
-  Widget displayRakutenPointList() {
+  Widget displayRecordList() {
     final List<Widget> list = <Widget>[];
 
     if (recordList != null) {
@@ -214,7 +226,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
                     child: (i == 0)
                         ? const SizedBox.shrink()
-                        : CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
+                        : GestureDetector(
+                            onTap: () {
+                              RakutenPointsDialog(
+                                context: context,
+                                widget: RecordDetailListAlert(
+                                  isar: widget.isar,
+                                  date: recordList![i].date,
+
+                                  sagaku: sagaku,
+
+                                  recordDetailList: recordDetailMap[recordList![i].date] ?? <RecordDetail>[],
+                                ),
+                              );
+                            },
+
+                            child: CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
+                          ),
                   ),
 
                   Expanded(
@@ -247,8 +275,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                         widget: RecordInputAlert(
                           isar: widget.isar,
 
-                          categoryNameList: categoryNameList,
-                          actionNameList: actionNameList,
+                          // categoryNameList: categoryNameList,
+                          // actionNameList: actionNameList,
+                          //
+                          //
+                          //
                           record: recordList![i],
                         ),
                       );
@@ -269,5 +300,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
         child: Column(children: list),
       ),
     );
+  }
+
+  ///
+  Future<void> _makeRecordDetailList() async {
+    return RecordDetailsRepository().getRecordDetailList(isar: widget.isar).then((List<RecordDetail>? value) {
+      recordDetailList = value;
+
+      if (value != null) {
+        for (final RecordDetail element in value) {
+          (recordDetailMap[element.date] ??= <RecordDetail>[]).add(element);
+        }
+      }
+    });
   }
 }

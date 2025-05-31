@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 
-import '../../collections/action_name.dart';
-import '../../collections/category_name.dart';
+// import '../../collections/action_name.dart';
+// import '../../collections/category_name.dart';
+//
+//
+
 import '../../collections/record.dart';
 import '../../controllers/controllers_mixin.dart';
 import '../../extensions/extensions.dart';
@@ -15,11 +18,18 @@ import '../home_screen.dart';
 import '../parts/error_dialog.dart';
 
 class RecordInputAlert extends ConsumerStatefulWidget {
-  const RecordInputAlert({super.key, required this.isar, this.categoryNameList, this.actionNameList, this.record});
+  const RecordInputAlert({
+    super.key,
+    required this.isar,
+
+    //    this.categoryNameList, this.actionNameList,
+    this.record,
+  });
 
   final Isar isar;
-  final List<CategoryName>? categoryNameList;
-  final List<ActionName>? actionNameList;
+
+  // final List<CategoryName>? categoryNameList;
+  // final List<ActionName>? actionNameList;
   final Record? record;
 
   @override
@@ -274,10 +284,9 @@ class _RecordInputAlertState extends ConsumerState<RecordInputAlert> with Contro
       return;
     }
 
-    final Record record =
-        Record()
-          ..date = appParamState.selectedDate
-          ..price = priceEditingController.text.trim().toInt();
+    final Record record = Record()
+      ..date = appParamState.selectedDate
+      ..price = priceEditingController.text.trim().toInt();
 
     // ignore: always_specify_types
     RecordsRepository().inputRecord(isar: widget.isar, record: record).then((value) {
