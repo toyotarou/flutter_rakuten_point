@@ -21,6 +21,7 @@ import 'components/csv_data/data_import_alert.dart';
 //
 //
 
+import 'components/record_detail_list_alert.dart';
 import 'components/record_input_alert.dart';
 import 'parts/rakuten_points_dialog.dart';
 
@@ -130,9 +131,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
                                     child: (index == 0)
                                         ? const SizedBox.shrink()
-                                        : CircleAvatar(
-                                            backgroundColor: Colors.blueGrey.withValues(alpha: 0.2),
-                                            radius: 15,
+                                        : GestureDetector(
+                                            onTap: () {
+                                              RakutenPointsDialog(
+                                                context: context,
+                                                widget: RecordDetailListAlert(
+                                                  isar: widget.isar,
+                                                  date: recordList![index].date,
+
+                                                  sagaku: sagaku,
+
+                                                  recordDetailList:
+                                                      recordDetailMap[recordList![index].date] ?? <RecordDetail>[],
+                                                ),
+                                              );
+                                            },
+                                            child: CircleAvatar(
+                                              backgroundColor: Colors.blueGrey.withValues(alpha: 0.2),
+                                              radius: 15,
+                                            ),
                                           ),
                                   ),
 
@@ -481,6 +498,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
   ///
   Future<void> _makeRecordDetailList() async {
+    recordDetailMap = <String, List<RecordDetail>>{};
+
     return RecordDetailsRepository().getRecordDetailList(isar: widget.isar).then((List<RecordDetail>? value) {
       recordDetailList = value;
 

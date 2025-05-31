@@ -29,18 +29,36 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
+
       body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[Text(widget.date), Text(widget.sagaku.toString().toCurrency())],
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[Text(widget.date), Text(widget.sagaku.toString().toCurrency())],
+                  ),
 
-            Divider(color: Colors.white.withValues(alpha: 0.3), thickness: 5),
+                  ElevatedButton(
+                    onPressed: () {},
 
-            Expanded(child: displayRecordDetailList()),
-          ],
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
+
+                    child: const Text('input'),
+                  ),
+                ],
+              ),
+
+              Divider(color: Colors.white.withValues(alpha: 0.3), thickness: 5),
+
+              Expanded(child: displayRecordDetailList()),
+            ],
+          ),
         ),
       ),
     );
@@ -50,6 +68,7 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
   Widget displayRecordDetailList() {
     final List<Widget> list = <Widget>[];
 
+    int sum = 0;
     for (final RecordDetail element in widget.recordDetailList) {
       list.add(
         Row(
@@ -62,6 +81,29 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
             ),
 
             Text(element.price.toString().toCurrency()),
+          ],
+        ),
+      );
+
+      sum += element.price;
+    }
+
+    list.add(const Divider());
+
+    list.add(
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[const SizedBox.shrink(), Text(sum.toString().toCurrency())],
+      ),
+    );
+
+    if (widget.sagaku != sum) {
+      list.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            const SizedBox.shrink(),
+            Text(sum.toString().toCurrency(), style: const TextStyle(color: Colors.yellowAccent)),
           ],
         ),
       );
