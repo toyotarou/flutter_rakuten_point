@@ -16,7 +16,11 @@ import 'components/action_name_input_alert.dart';
 import 'components/category_name_input_alert.dart';
 import 'components/csv_data/data_export_alert.dart';
 import 'components/csv_data/data_import_alert.dart';
-import 'components/record_detail_list_alert.dart';
+
+// import 'components/record_detail_list_alert.dart';
+//
+//
+
 import 'components/record_input_alert.dart';
 import 'parts/rakuten_points_dialog.dart';
 
@@ -41,10 +45,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   Map<String, List<RecordDetail>> recordDetailMap = <String, List<RecordDetail>>{};
 
   ///
-  @override
-  void initState() {
-    super.initState();
-
+  void _init() {
     _makeCategoryNameList();
 
     _makeActionNameList();
@@ -57,6 +58,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   ///
   @override
   Widget build(BuildContext context) {
+    // ignore: always_specify_types
+    Future(_init);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rakuten Point'),
@@ -84,20 +88,116 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
         ],
       ),
 
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
+      body: Stack(
+        children: <Widget>[
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 70, right: 10, bottom: 10, left: 10),
 
-          child: Column(
-            children: <Widget>[
-              SizedBox(height: 60, child: displayYearmonthList()),
+              // ignore: always_specify_types
+              child: FutureBuilder(
+                future: getFutureRecordList(),
 
-              Divider(color: Colors.white.withValues(alpha: 0.3), thickness: 5),
+                builder: (BuildContext context, AsyncSnapshot<List<Record>> snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        // ignore: literal_only_boolean_expressions
+                        if (appParamState.selectedListYearmonth !=
+                            '${snapshot.data![index].date.split('-')[0]}-${snapshot.data![index].date.split('-')[1]}') {
+                          return const SizedBox.shrink();
+                        }
 
-              Expanded(child: displayRecordList()),
-            ],
+                        int sagaku = 0;
+                        if (index > 0) {
+                          sagaku = snapshot.data![index - 1].price - snapshot.data![index].price;
+                        }
+
+                        return ListTile(
+                          title: Container(
+                            decoration: BoxDecoration(
+                              border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.3))),
+                            ),
+
+                            child: DefaultTextStyle(
+                              style: const TextStyle(fontSize: 12),
+                              child: Row(
+                                children: <Widget>[
+                                  Container(
+                                    width: 50,
+                                    alignment: Alignment.topLeft,
+
+                                    child: (index == 0)
+                                        ? const SizedBox.shrink()
+                                        : CircleAvatar(
+                                            backgroundColor: Colors.blueGrey.withValues(alpha: 0.2),
+                                            radius: 15,
+                                          ),
+                                  ),
+
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Text(snapshot.data![index].date),
+
+                                        if (index == 0)
+                                          Text(snapshot.data![index].price.toString().toCurrency())
+                                        else
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: <Widget>[
+                                              Text(snapshot.data![index].price.toString().toCurrency()),
+
+                                              Text(
+                                                sagaku.toString().toCurrency(),
+                                                style: const TextStyle(color: Colors.grey),
+                                              ),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 20),
+
+                                  IconButton(
+                                    onPressed: () {
+                                      RakutenPointsDialog(
+                                        context: context,
+                                        widget: RecordInputAlert(
+                                          isar: widget.isar,
+
+                                          // categoryNameList: categoryNameList,
+                                          // actionNameList: actionNameList,
+                                          //
+                                          //
+                                          //
+                                          //
+                                          record: snapshot.data![index],
+                                        ),
+                                      );
+                                    },
+                                    icon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.3)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
           ),
-        ),
+
+          Positioned(top: 10, right: 10, left: 10, child: displayYearmonthList()),
+        ],
       ),
 
       drawer: Drawer(
@@ -154,39 +254,106 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
   ///
   Widget displayYearmonthList() {
-    final List<String> yearmonth = <String>[];
+    final DateTime startDate = DateTime(2024, 3, 12);
 
-    recordList?.forEach((Record element) {
-      final List<String> exDate = element.date.split('-');
+    final DateTime today = DateTime.now();
 
-      if (!yearmonth.contains('${exDate[0]}-${exDate[1]}')) {
-        yearmonth.add('${exDate[0]}-${exDate[1]}');
+    final int diff = today.difference(startDate).inDays;
+
+    final List<String> yearmonthList = <String>[];
+    for (int i = 0; i < diff; i++) {
+      final String yearmonth = startDate.add(Duration(days: i)).yyyymm;
+      if (!yearmonthList.contains(yearmonth)) {
+        yearmonthList.add(yearmonth);
       }
-    });
+    }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: yearmonth.map((String e) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: GestureDetector(
-              onTap: () {
-                appParamNotifier.setSelectedListYearmonth(yearmonth: e);
-              },
-              child: CircleAvatar(
-                backgroundColor: (e == appParamState.selectedListYearmonth)
-                    ? Colors.yellowAccent.withValues(alpha: 0.2)
-                    : Colors.blueGrey.withValues(alpha: 0.2),
+    return SizedBox(
+      height: 60,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: yearmonthList.map((String e) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: GestureDetector(
+                onTap: () {
+                  appParamNotifier.setSelectedListYearmonth(yearmonth: e);
+                },
+                child: CircleAvatar(
+                  backgroundColor: (e == appParamState.selectedListYearmonth)
+                      ? Colors.yellowAccent.withValues(alpha: 0.2)
+                      : Colors.blueGrey.withValues(alpha: 0.2),
 
-                child: Text(e, style: const TextStyle(fontSize: 10)),
+                  child: Text(e, style: const TextStyle(fontSize: 10)),
+                ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
+
+  ///
+  Future<List<Record>> getFutureRecordList() async {
+    List<Record> list = <Record>[];
+
+    await RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) {
+      if (value != null) {
+        list = value;
+      }
+    });
+
+    return list;
+  }
+
+  //
+  //
+  //
+  //
+  //
+  // ///
+  // Widget displayYearmonthList() {
+  //   final List<String> yearmonth = <String>[];
+  //
+  //   recordList?.forEach((Record element) {
+  //     final List<String> exDate = element.date.split('-');
+  //
+  //     if (!yearmonth.contains('${exDate[0]}-${exDate[1]}')) {
+  //       yearmonth.add('${exDate[0]}-${exDate[1]}');
+  //     }
+  //   });
+  //
+  //   return SingleChildScrollView(
+  //     scrollDirection: Axis.horizontal,
+  //     child: Row(
+  //       children: yearmonth.map((String e) {
+  //         return Padding(
+  //           padding: const EdgeInsets.symmetric(horizontal: 5),
+  //           child: GestureDetector(
+  //             onTap: () {
+  //               appParamNotifier.setSelectedListYearmonth(yearmonth: e);
+  //             },
+  //             child: CircleAvatar(
+  //               backgroundColor: (e == appParamState.selectedListYearmonth)
+  //                   ? Colors.yellowAccent.withValues(alpha: 0.2)
+  //                   : Colors.blueGrey.withValues(alpha: 0.2),
+  //
+  //               child: Text(e, style: const TextStyle(fontSize: 10)),
+  //             ),
+  //           ),
+  //         );
+  //       }).toList(),
+  //     ),
+  //   );
+  // }
+  //
+  //
+  //
+  //
+  //
+  //
 
   ///
   Future<void> _makeCategoryNameList() async => CategoryNamesRepository()
@@ -202,105 +369,115 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   Future<void> _makeRecordList() async =>
       RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) => recordList = value);
 
-  ///
-  Widget displayRecordList() {
-    final List<Widget> list = <Widget>[];
-
-    if (recordList != null) {
-      for (int i = 0; i < recordList!.length; i++) {
-        final int sagaku = (i == 0) ? 0 : recordList![i - 1].price - recordList![i].price;
-
-        if (appParamState.selectedListYearmonth ==
-            '${recordList![i].date.split('-')[0]}-${recordList![i].date.split('-')[1]}') {
-          list.add(
-            Container(
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
-              ),
-
-              child: Row(
-                children: <Widget>[
-                  Container(
-                    width: 50,
-                    alignment: Alignment.topLeft,
-
-                    child: (i == 0)
-                        ? const SizedBox.shrink()
-                        : GestureDetector(
-                            onTap: () {
-                              RakutenPointsDialog(
-                                context: context,
-                                widget: RecordDetailListAlert(
-                                  isar: widget.isar,
-                                  date: recordList![i].date,
-
-                                  sagaku: sagaku,
-
-                                  recordDetailList: recordDetailMap[recordList![i].date] ?? <RecordDetail>[],
-                                ),
-                              );
-                            },
-
-                            child: CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
-                          ),
-                  ),
-
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(recordList![i].date),
-
-                        if (i == 0)
-                          Text(recordList![i].price.toString().toCurrency())
-                        else
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: <Widget>[
-                              Text(recordList![i].price.toString().toCurrency()),
-
-                              Text(sagaku.toString().toCurrency(), style: const TextStyle(color: Colors.grey)),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  IconButton(
-                    onPressed: () {
-                      RakutenPointsDialog(
-                        context: context,
-                        widget: RecordInputAlert(
-                          isar: widget.isar,
-
-                          // categoryNameList: categoryNameList,
-                          // actionNameList: actionNameList,
-                          //
-                          //
-                          //
-                          record: recordList![i],
-                        ),
-                      );
-                    },
-                    icon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.3)),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-      }
-    }
-
-    return SingleChildScrollView(
-      child: DefaultTextStyle(
-        style: const TextStyle(fontSize: 12),
-        child: Column(children: list),
-      ),
-    );
-  }
+  //
+  //
+  //
+  //
+  //
+  // ///
+  // Widget displayRecordList() {
+  //   final List<Widget> list = <Widget>[];
+  //
+  //   if (recordList != null) {
+  //     for (int i = 0; i < recordList!.length; i++) {
+  //       final int sagaku = (i == 0) ? 0 : recordList![i - 1].price - recordList![i].price;
+  //
+  //       if (appParamState.selectedListYearmonth ==
+  //           '${recordList![i].date.split('-')[0]}-${recordList![i].date.split('-')[1]}') {
+  //         list.add(
+  //           Container(
+  //             decoration: BoxDecoration(
+  //               border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
+  //             ),
+  //
+  //             child: Row(
+  //               children: <Widget>[
+  //                 Container(
+  //                   width: 50,
+  //                   alignment: Alignment.topLeft,
+  //
+  //                   child: (i == 0)
+  //                       ? const SizedBox.shrink()
+  //                       : GestureDetector(
+  //                           onTap: () {
+  //                             RakutenPointsDialog(
+  //                               context: context,
+  //                               widget: RecordDetailListAlert(
+  //                                 isar: widget.isar,
+  //                                 date: recordList![i].date,
+  //
+  //                                 sagaku: sagaku,
+  //
+  //                                 recordDetailList: recordDetailMap[recordList![i].date] ?? <RecordDetail>[],
+  //                               ),
+  //                             );
+  //                           },
+  //
+  //                           child: CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
+  //                         ),
+  //                 ),
+  //
+  //                 Expanded(
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: <Widget>[
+  //                       Text(recordList![i].date),
+  //
+  //                       if (i == 0)
+  //                         Text(recordList![i].price.toString().toCurrency())
+  //                       else
+  //                         Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.end,
+  //                           children: <Widget>[
+  //                             Text(recordList![i].price.toString().toCurrency()),
+  //
+  //                             Text(sagaku.toString().toCurrency(), style: const TextStyle(color: Colors.grey)),
+  //                           ],
+  //                         ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //
+  //                 const SizedBox(width: 20),
+  //
+  //                 IconButton(
+  //                   onPressed: () {
+  //                     RakutenPointsDialog(
+  //                       context: context,
+  //                       widget: RecordInputAlert(
+  //                         isar: widget.isar,
+  //
+  //                         // categoryNameList: categoryNameList,
+  //                         // actionNameList: actionNameList,
+  //                         //
+  //                         //
+  //                         //
+  //                         record: recordList![i],
+  //                       ),
+  //                     );
+  //                   },
+  //                   icon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.3)),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //     }
+  //   }
+  //
+  //   return SingleChildScrollView(
+  //     child: DefaultTextStyle(
+  //       style: const TextStyle(fontSize: 12),
+  //       child: Column(children: list),
+  //     ),
+  //   );
+  // }
+  //
+  //
+  //
+  //
+  //
 
   ///
   Future<void> _makeRecordDetailList() async {
