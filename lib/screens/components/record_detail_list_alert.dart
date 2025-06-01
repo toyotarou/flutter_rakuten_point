@@ -103,7 +103,10 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             const SizedBox.shrink(),
-            Text(sum.toString().toCurrency(), style: const TextStyle(color: Colors.yellowAccent)),
+            Text(
+              ((sum < 0) ? widget.sagaku - sum : widget.sagaku + sum).toString().toCurrency(),
+              style: const TextStyle(color: Colors.yellowAccent),
+            ),
           ],
         ),
       );

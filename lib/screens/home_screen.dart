@@ -21,6 +21,11 @@ import 'components/csv_data/data_import_alert.dart';
 //
 //
 
+// import 'components/record_detail_list_alert.dart';
+//
+//
+//
+
 import 'components/record_detail_list_alert.dart';
 import 'components/record_input_alert.dart';
 import 'parts/rakuten_points_dialog.dart';
@@ -40,6 +45,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   List<ActionName>? actionNameList;
 
   List<Record>? recordList;
+
+  Map<String, Record> recordMap = <String, Record>{};
 
   List<RecordDetail>? recordDetailList;
 
@@ -88,6 +95,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
           ),
         ],
       ),
+
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: <Widget>[
+            displayYearmonthList(),
+
+            Divider(color: Colors.white.withValues(alpha: 0.5), thickness: 5),
+
+            Expanded(child: displayRecordList()),
+
+            const SizedBox(height: 50),
+          ],
+        ),
+      ),
+
+      /*
+
+
 
       body: Stack(
         children: <Widget>[
@@ -217,6 +243,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
         ],
       ),
 
+
+
+
+
+      */
       drawer: Drawer(
         backgroundColor: Colors.blueGrey.withOpacity(0.2),
         child: Padding(
@@ -270,6 +301,97 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   }
 
   ///
+  Widget displayRecordList() {
+    final List<Widget> list = <Widget>[];
+
+    final DateTime startDate = DateTime(2024, 3, 12);
+
+    final DateTime today = DateTime.now();
+
+    final int diff = today.difference(startDate).inDays;
+
+    int lastPrice = 0;
+
+    for (int i = 0; i < diff + 1; i++) {
+      final String date = startDate.add(Duration(days: i)).yyyymmdd;
+
+      // ignore: literal_only_boolean_expressions
+      if ('${date.split('-')[0]}-${date.split('-')[1]}' == appParamState.selectedListYearmonth) {
+        int sagaku = 0;
+        if (recordMap[date] != null) {
+          sagaku = lastPrice - recordMap[date]!.price;
+        }
+
+        list.add(
+          Container(
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
+            ),
+
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 50,
+                  alignment: Alignment.topLeft,
+
+                  child: (i == 0 || recordMap[date] == null)
+                      ? const SizedBox(height: 50)
+                      : SizedBox(
+                          height: 50,
+                          child: GestureDetector(
+                            onTap: () {
+                              RakutenPointsDialog(
+                                context: context,
+                                widget: RecordDetailListAlert(
+                                  isar: widget.isar,
+                                  date: recordList![i].date,
+
+                                  sagaku: sagaku,
+
+                                  recordDetailList: recordDetailMap[recordList![i].date] ?? <RecordDetail>[],
+                                ),
+                              );
+                            },
+
+                            child: CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
+                          ),
+                        ),
+                ),
+
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(date),
+
+                      if (recordMap[date] != null)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Text(recordMap[date]!.price.toString().toCurrency()),
+                            Text(sagaku.toString().toCurrency()),
+                          ],
+                        )
+                      else
+                        const SizedBox.shrink(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        if (recordMap[date] != null) {
+          lastPrice = recordMap[date]!.price;
+        }
+      }
+    }
+
+    return SingleChildScrollView(child: Column(children: list));
+  }
+
+  ///
   Widget displayYearmonthList() {
     final DateTime startDate = DateTime(2024, 3, 12);
 
@@ -278,7 +400,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     final int diff = today.difference(startDate).inDays;
 
     final List<String> yearmonthList = <String>[];
-    for (int i = 0; i < diff; i++) {
+    for (int i = 0; i < diff + 1; i++) {
       final String yearmonth = startDate.add(Duration(days: i)).yyyymm;
       if (!yearmonthList.contains(yearmonth)) {
         yearmonthList.add(yearmonth);
@@ -312,18 +434,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     );
   }
 
-  ///
-  Future<List<Record>> getFutureRecordList() async {
-    List<Record> list = <Record>[];
-
-    await RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) {
-      if (value != null) {
-        list = value;
-      }
-    });
-
-    return list;
-  }
+  // ///
+  // Future<List<Record>> getFutureRecordList() async {
+  //   List<Record> list = <Record>[];
+  //
+  //   await RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) {
+  //     if (value != null) {
+  //       list = value;
+  //     }
+  //   });
+  //
+  //   return list;
+  // }
+  //
+  //
+  //
+  //
+  //
 
   //
   //
@@ -383,8 +510,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
       .then((List<ActionName>? value) => actionNameList = value);
 
   ///
-  Future<void> _makeRecordList() async =>
-      RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) => recordList = value);
+  Future<void> _makeRecordList() async {
+    recordMap.clear();
+
+    return RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) {
+      recordList = value;
+
+      if (value != null) {
+        for (final Record element in value) {
+          recordMap[element.date] = element;
+        }
+      }
+    });
+  }
 
   //
   //
