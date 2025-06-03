@@ -17,15 +17,6 @@ import 'components/category_name_input_alert.dart';
 import 'components/csv_data/data_export_alert.dart';
 import 'components/csv_data/data_import_alert.dart';
 
-// import 'components/record_detail_list_alert.dart';
-//
-//
-
-// import 'components/record_detail_list_alert.dart';
-//
-//
-//
-
 import 'components/record_detail_list_alert.dart';
 import 'components/record_input_alert.dart';
 import 'parts/rakuten_points_dialog.dart';
@@ -51,6 +42,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   List<RecordDetail>? recordDetailList;
 
   Map<String, List<RecordDetail>> recordDetailMap = <String, List<RecordDetail>>{};
+
+  List<GlobalKey> globalKeyList = <GlobalKey<State<StatefulWidget>>>[];
+
+  ///
+  @override
+  void initState() {
+    super.initState();
+
+    // ignore: always_specify_types
+    globalKeyList = List.generate(300, (int index) => GlobalKey());
+  }
 
   ///
   void _init() {
@@ -80,15 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
             onPressed: () {
               RakutenPointsDialog(
                 context: context,
-                widget: RecordInputAlert(
-                  isar: widget.isar,
-
-                  // categoryNameList: categoryNameList,
-                  // actionNameList: actionNameList,
-                  //
-                  //
-                  //
-                ),
+                widget: RecordInputAlert(isar: widget.isar),
               );
             },
             icon: const Icon(Icons.input),
@@ -102,8 +96,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
           children: <Widget>[
             displayYearmonthList(),
 
-            Divider(color: Colors.white.withValues(alpha: 0.5), thickness: 5),
-
             Expanded(child: displayRecordList()),
 
             const SizedBox(height: 50),
@@ -111,143 +103,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
         ),
       ),
 
-      /*
-
-
-
-      body: Stack(
-        children: <Widget>[
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 70, right: 10, bottom: 10, left: 10),
-
-              // ignore: always_specify_types
-              child: FutureBuilder(
-                future: getFutureRecordList(),
-
-                builder: (BuildContext context, AsyncSnapshot<List<Record>> snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        // ignore: literal_only_boolean_expressions
-                        if (appParamState.selectedListYearmonth !=
-                            '${snapshot.data![index].date.split('-')[0]}-${snapshot.data![index].date.split('-')[1]}') {
-                          return const SizedBox.shrink();
-                        }
-
-                        int sagaku = 0;
-                        if (index > 0) {
-                          sagaku = snapshot.data![index - 1].price - snapshot.data![index].price;
-                        }
-
-                        return ListTile(
-                          title: Container(
-                            decoration: BoxDecoration(
-                              border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.3))),
-                            ),
-
-                            child: DefaultTextStyle(
-                              style: const TextStyle(fontSize: 12),
-                              child: Row(
-                                children: <Widget>[
-                                  Container(
-                                    width: 50,
-                                    alignment: Alignment.topLeft,
-
-                                    child: (index == 0)
-                                        ? const SizedBox.shrink()
-                                        : GestureDetector(
-                                            onTap: () {
-                                              RakutenPointsDialog(
-                                                context: context,
-                                                widget: RecordDetailListAlert(
-                                                  isar: widget.isar,
-                                                  date: recordList![index].date,
-
-                                                  sagaku: sagaku,
-
-                                                  recordDetailList:
-                                                      recordDetailMap[recordList![index].date] ?? <RecordDetail>[],
-                                                ),
-                                              );
-                                            },
-                                            child: CircleAvatar(
-                                              backgroundColor: Colors.blueGrey.withValues(alpha: 0.2),
-                                              radius: 15,
-                                            ),
-                                          ),
-                                  ),
-
-                                  Expanded(
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Text(snapshot.data![index].date),
-
-                                        if (index == 0)
-                                          Text(snapshot.data![index].price.toString().toCurrency())
-                                        else
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.end,
-                                            children: <Widget>[
-                                              Text(snapshot.data![index].price.toString().toCurrency()),
-
-                                              Text(
-                                                sagaku.toString().toCurrency(),
-                                                style: const TextStyle(color: Colors.grey),
-                                              ),
-                                            ],
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  const SizedBox(width: 20),
-
-                                  IconButton(
-                                    onPressed: () {
-                                      RakutenPointsDialog(
-                                        context: context,
-                                        widget: RecordInputAlert(
-                                          isar: widget.isar,
-
-                                          // categoryNameList: categoryNameList,
-                                          // actionNameList: actionNameList,
-                                          //
-                                          //
-                                          //
-                                          //
-                                          record: snapshot.data![index],
-                                        ),
-                                      );
-                                    },
-                                    icon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.3)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }
-
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
-          ),
-
-          Positioned(top: 10, right: 10, left: 10, child: displayYearmonthList()),
-        ],
-      ),
-
-
-
-
-
-      */
       drawer: Drawer(
         backgroundColor: Colors.blueGrey.withOpacity(0.2),
         child: Padding(
@@ -312,79 +167,98 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
     int lastPrice = 0;
 
+    String keepYearmonth = '';
+
+    int j = 0;
     for (int i = 0; i < diff + 1; i++) {
       final String date = startDate.add(Duration(days: i)).yyyymmdd;
 
-      // ignore: literal_only_boolean_expressions
-      if ('${date.split('-')[0]}-${date.split('-')[1]}' == appParamState.selectedListYearmonth) {
-        int sagaku = 0;
-        if (recordMap[date] != null) {
-          sagaku = lastPrice - recordMap[date]!.price;
-        }
+      final String yearmonth = startDate.add(Duration(days: i)).yyyymm;
 
+      if (keepYearmonth != yearmonth) {
         list.add(
           Container(
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
-            ),
-
-            child: Row(
-              children: <Widget>[
-                Container(
-                  width: 50,
-                  alignment: Alignment.topLeft,
-
-                  child: (i == 0 || recordMap[date] == null)
-                      ? const SizedBox(height: 50)
-                      : SizedBox(
-                          height: 50,
-                          child: GestureDetector(
-                            onTap: () {
-                              RakutenPointsDialog(
-                                context: context,
-                                widget: RecordDetailListAlert(
-                                  isar: widget.isar,
-                                  date: recordList![i].date,
-
-                                  sagaku: sagaku,
-
-                                  recordDetailList: recordDetailMap[recordList![i].date] ?? <RecordDetail>[],
-                                ),
-                              );
-                            },
-
-                            child: CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
-                          ),
-                        ),
-                ),
-
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(date),
-
-                      if (recordMap[date] != null)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: <Widget>[
-                            Text(recordMap[date]!.price.toString().toCurrency()),
-                            Text(sagaku.toString().toCurrency()),
-                          ],
-                        )
-                      else
-                        const SizedBox.shrink(),
-                    ],
-                  ),
-                ),
-              ],
+            key: globalKeyList[j],
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.2)),
+            margin: const EdgeInsets.only(top: 20),
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            child: DefaultTextStyle(
+              style: const TextStyle(color: Colors.white),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[Text(yearmonth), const SizedBox.shrink()],
+              ),
             ),
           ),
         );
 
-        if (recordMap[date] != null) {
-          lastPrice = recordMap[date]!.price;
-        }
+        j++;
+      }
+
+      int sagaku = 0;
+      if (recordMap[date] != null) {
+        sagaku = lastPrice - recordMap[date]!.price;
+      }
+
+      list.add(
+        Container(
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
+          ),
+
+          child: Row(
+            children: <Widget>[
+              Container(
+                width: 50,
+                alignment: Alignment.topLeft,
+
+                child: (i == 0 || recordMap[date] == null)
+                    ? const SizedBox(height: 50)
+                    : SizedBox(
+                        height: 50,
+                        child: GestureDetector(
+                          onTap: () {
+                            RakutenPointsDialog(
+                              context: context,
+                              widget: RecordDetailListAlert(
+                                isar: widget.isar,
+                                date: recordList![i].date,
+
+                                sagaku: sagaku,
+
+                                recordDetailList: recordDetailMap[recordList![i].date] ?? <RecordDetail>[],
+                              ),
+                            );
+                          },
+
+                          child: CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
+                        ),
+                      ),
+              ),
+
+              Text(date),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    Text((recordMap[date] != null) ? recordMap[date]!.price.toString().toCurrency() : ''),
+
+                    if (i == 0 || recordMap[date] == null)
+                      const SizedBox.shrink()
+                    else
+                      Text(sagaku.toString().toCurrency(), style: TextStyle(color: Colors.grey.withValues(alpha: 0.5))),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      keepYearmonth = yearmonth;
+
+      if (recordMap[date] != null) {
+        lastPrice = recordMap[date]!.price;
       }
     }
 
@@ -393,6 +267,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
   ///
   Widget displayYearmonthList() {
+    final List<Widget> list = <Widget>[];
+
     final DateTime startDate = DateTime(2024, 3, 12);
 
     final DateTime today = DateTime.now();
@@ -407,97 +283,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
       }
     }
 
+    for (int i = 0; i < yearmonthList.length; i++) {
+      list.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: GestureDetector(
+            onTap: () {
+              appParamNotifier.setSelectedListYearmonth(yearmonth: yearmonthList[i]);
+
+              scrollToIndex(i);
+            },
+            child: CircleAvatar(
+              backgroundColor: (yearmonthList[i] == appParamState.selectedListYearmonth)
+                  ? Colors.yellowAccent.withValues(alpha: 0.2)
+                  : Colors.blueGrey.withValues(alpha: 0.2),
+
+              child: Text(yearmonthList[i], style: const TextStyle(fontSize: 10)),
+            ),
+          ),
+        ),
+      );
+    }
+
     return SizedBox(
-      height: 60,
+      height: 50,
+
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Row(
-          children: yearmonthList.map((String e) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: GestureDetector(
-                onTap: () {
-                  appParamNotifier.setSelectedListYearmonth(yearmonth: e);
-                },
-                child: CircleAvatar(
-                  backgroundColor: (e == appParamState.selectedListYearmonth)
-                      ? Colors.yellowAccent.withValues(alpha: 0.2)
-                      : Colors.blueGrey.withValues(alpha: 0.2),
-
-                  child: Text(e, style: const TextStyle(fontSize: 10)),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
+        child: Row(children: list),
       ),
     );
   }
-
-  // ///
-  // Future<List<Record>> getFutureRecordList() async {
-  //   List<Record> list = <Record>[];
-  //
-  //   await RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) {
-  //     if (value != null) {
-  //       list = value;
-  //     }
-  //   });
-  //
-  //   return list;
-  // }
-  //
-  //
-  //
-  //
-  //
-
-  //
-  //
-  //
-  //
-  //
-  // ///
-  // Widget displayYearmonthList() {
-  //   final List<String> yearmonth = <String>[];
-  //
-  //   recordList?.forEach((Record element) {
-  //     final List<String> exDate = element.date.split('-');
-  //
-  //     if (!yearmonth.contains('${exDate[0]}-${exDate[1]}')) {
-  //       yearmonth.add('${exDate[0]}-${exDate[1]}');
-  //     }
-  //   });
-  //
-  //   return SingleChildScrollView(
-  //     scrollDirection: Axis.horizontal,
-  //     child: Row(
-  //       children: yearmonth.map((String e) {
-  //         return Padding(
-  //           padding: const EdgeInsets.symmetric(horizontal: 5),
-  //           child: GestureDetector(
-  //             onTap: () {
-  //               appParamNotifier.setSelectedListYearmonth(yearmonth: e);
-  //             },
-  //             child: CircleAvatar(
-  //               backgroundColor: (e == appParamState.selectedListYearmonth)
-  //                   ? Colors.yellowAccent.withValues(alpha: 0.2)
-  //                   : Colors.blueGrey.withValues(alpha: 0.2),
-  //
-  //               child: Text(e, style: const TextStyle(fontSize: 10)),
-  //             ),
-  //           ),
-  //         );
-  //       }).toList(),
-  //     ),
-  //   );
-  // }
-  //
-  //
-  //
-  //
-  //
-  //
 
   ///
   Future<void> _makeCategoryNameList() async => CategoryNamesRepository()
@@ -524,116 +340,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     });
   }
 
-  //
-  //
-  //
-  //
-  //
-  // ///
-  // Widget displayRecordList() {
-  //   final List<Widget> list = <Widget>[];
-  //
-  //   if (recordList != null) {
-  //     for (int i = 0; i < recordList!.length; i++) {
-  //       final int sagaku = (i == 0) ? 0 : recordList![i - 1].price - recordList![i].price;
-  //
-  //       if (appParamState.selectedListYearmonth ==
-  //           '${recordList![i].date.split('-')[0]}-${recordList![i].date.split('-')[1]}') {
-  //         list.add(
-  //           Container(
-  //             decoration: BoxDecoration(
-  //               border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
-  //             ),
-  //
-  //             child: Row(
-  //               children: <Widget>[
-  //                 Container(
-  //                   width: 50,
-  //                   alignment: Alignment.topLeft,
-  //
-  //                   child: (i == 0)
-  //                       ? const SizedBox.shrink()
-  //                       : GestureDetector(
-  //                           onTap: () {
-  //                             RakutenPointsDialog(
-  //                               context: context,
-  //                               widget: RecordDetailListAlert(
-  //                                 isar: widget.isar,
-  //                                 date: recordList![i].date,
-  //
-  //                                 sagaku: sagaku,
-  //
-  //                                 recordDetailList: recordDetailMap[recordList![i].date] ?? <RecordDetail>[],
-  //                               ),
-  //                             );
-  //                           },
-  //
-  //                           child: CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
-  //                         ),
-  //                 ),
-  //
-  //                 Expanded(
-  //                   child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: <Widget>[
-  //                       Text(recordList![i].date),
-  //
-  //                       if (i == 0)
-  //                         Text(recordList![i].price.toString().toCurrency())
-  //                       else
-  //                         Column(
-  //                           crossAxisAlignment: CrossAxisAlignment.end,
-  //                           children: <Widget>[
-  //                             Text(recordList![i].price.toString().toCurrency()),
-  //
-  //                             Text(sagaku.toString().toCurrency(), style: const TextStyle(color: Colors.grey)),
-  //                           ],
-  //                         ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //
-  //                 const SizedBox(width: 20),
-  //
-  //                 IconButton(
-  //                   onPressed: () {
-  //                     RakutenPointsDialog(
-  //                       context: context,
-  //                       widget: RecordInputAlert(
-  //                         isar: widget.isar,
-  //
-  //                         // categoryNameList: categoryNameList,
-  //                         // actionNameList: actionNameList,
-  //                         //
-  //                         //
-  //                         //
-  //                         record: recordList![i],
-  //                       ),
-  //                     );
-  //                   },
-  //                   icon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.3)),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         );
-  //       }
-  //     }
-  //   }
-  //
-  //   return SingleChildScrollView(
-  //     child: DefaultTextStyle(
-  //       style: const TextStyle(fontSize: 12),
-  //       child: Column(children: list),
-  //     ),
-  //   );
-  // }
-  //
-  //
-  //
-  //
-  //
-
   ///
   Future<void> _makeRecordDetailList() async {
     recordDetailMap = <String, List<RecordDetail>>{};
@@ -647,5 +353,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
         }
       }
     });
+  }
+
+  ///
+  Future<void> scrollToIndex(int index) async {
+    final BuildContext target = globalKeyList[index].currentContext!;
+
+    await Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 1000));
   }
 }
