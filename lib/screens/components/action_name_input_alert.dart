@@ -51,7 +51,7 @@ class _ActionNameInputAlertState extends ConsumerState<ActionNameInputAlert> {
             children: <Widget>[
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[Text('アクション名管理'), SizedBox.shrink()],
+                children: <Widget>[Text('Action Input'), SizedBox.shrink()],
               ),
               Divider(color: Colors.white.withValues(alpha: 0.4), thickness: 5),
               _displayInputParts(),
@@ -71,7 +71,9 @@ class _ActionNameInputAlertState extends ConsumerState<ActionNameInputAlert> {
     widget.actionNameList?.forEach((ActionName element) {
       list.add(
         Container(
-          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.3)))),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.3))),
+          ),
 
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,7 +110,10 @@ class _ActionNameInputAlertState extends ConsumerState<ActionNameInputAlert> {
     });
 
     return SingleChildScrollView(
-      child: DefaultTextStyle(style: const TextStyle(fontSize: 12), child: Column(children: list)),
+      child: DefaultTextStyle(
+        style: const TextStyle(fontSize: 12),
+        child: Column(children: list),
+      ),
     );
   }
 
@@ -155,17 +160,13 @@ class _ActionNameInputAlertState extends ConsumerState<ActionNameInputAlert> {
 
                 if (isEditing)
                   ElevatedButton(
-                    onPressed: () {
-                      _updateActionName();
-                    },
+                    onPressed: () => _updateActionName(),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
                     child: const Text('更新'),
                   )
                 else
                   ElevatedButton(
-                    onPressed: () {
-                      _inputActionName();
-                    },
+                    onPressed: () => _inputActionName(),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
                     child: const Text('登録'),
                   ),

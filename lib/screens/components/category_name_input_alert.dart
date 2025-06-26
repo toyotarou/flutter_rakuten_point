@@ -51,7 +51,7 @@ class _CategoryInputAlertState extends ConsumerState<CategoryNameInputAlert> {
             children: <Widget>[
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[Text('カテゴリー名管理'), SizedBox.shrink()],
+                children: <Widget>[Text('Category Input'), SizedBox.shrink()],
               ),
               Divider(color: Colors.white.withValues(alpha: 0.4), thickness: 5),
               _displayInputParts(),

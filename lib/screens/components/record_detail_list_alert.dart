@@ -2,35 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 
-import '../../collections/record_detail.dart';
-import '../../extensions/extensions.dart';
+import '../../collections/record.dart';
+import '../parts/rakuten_points_dialog.dart';
+import 'record_detail_input_alert.dart';
 
 class RecordDetailListAlert extends ConsumerStatefulWidget {
-  const RecordDetailListAlert({
-    super.key,
-    required this.isar,
-    required this.date,
-    required this.recordDetailList,
-    required this.sagaku,
-  });
+  const RecordDetailListAlert({super.key, required this.isar, required this.date, this.record});
 
   final Isar isar;
   final String date;
-  final int sagaku;
-
-  final List<RecordDetail> recordDetailList;
+  final Record? record;
 
   @override
   ConsumerState<RecordDetailListAlert> createState() => _RecordDetailListAlertState();
 }
 
 class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
-  ///
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -41,11 +32,18 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
                 children: <Widget>[
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[Text(widget.date), Text(widget.sagaku.toString().toCurrency())],
+                    children: <Widget>[const Text('Record Detail List'), const SizedBox(height: 10), Text(widget.date)],
                   ),
 
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      RakutenPointsDialog(
+                        context: context,
+                        widget: RecordDetailInputAlert(isar: widget.isar, date: widget.date, record: widget.record),
+
+                        clearBarrierColor: true,
+                      );
+                    },
 
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
 
@@ -53,65 +51,11 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
                   ),
                 ],
               ),
-
-              Divider(color: Colors.white.withValues(alpha: 0.3), thickness: 5),
-
-              Expanded(child: displayRecordDetailList()),
+              Divider(color: Colors.white.withValues(alpha: 0.4), thickness: 5),
             ],
           ),
         ),
       ),
     );
-  }
-
-  ///
-  Widget displayRecordDetailList() {
-    final List<Widget> list = <Widget>[];
-
-    int sum = 0;
-    for (final RecordDetail element in widget.recordDetailList) {
-      list.add(
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[Text(element.category), Text(element.action)],
-              ),
-            ),
-
-            Text(element.price.toString().toCurrency()),
-          ],
-        ),
-      );
-
-      sum += element.price;
-    }
-
-    list.add(const Divider());
-
-    list.add(
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[const SizedBox.shrink(), Text(sum.toString().toCurrency())],
-      ),
-    );
-
-    if (widget.sagaku != sum) {
-      list.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            const SizedBox.shrink(),
-            Text(
-              ((sum < 0) ? widget.sagaku - sum : widget.sagaku + sum).toString().toCurrency(),
-              style: const TextStyle(color: Colors.yellowAccent),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return SingleChildScrollView(child: Column(children: list));
   }
 }

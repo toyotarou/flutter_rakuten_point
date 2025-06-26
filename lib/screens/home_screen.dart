@@ -52,10 +52,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
     // ignore: always_specify_types
     globalKeyList = List.generate(300, (int index) => GlobalKey());
-  }
 
-  ///
-  void _init() {
     _makeCategoryNameList();
 
     _makeActionNameList();
@@ -63,13 +60,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     _makeRecordList();
 
     _makeRecordDetailList();
+
+    // ignore: always_specify_types
+    Future(() {
+      appParamNotifier.setSelectedListYearmonth(yearmonth: DateTime.now().yyyymm);
+    });
   }
+
+  //
+  // ///
+  // void _init() {
+  //   _makeCategoryNameList();
+  //
+  //   _makeActionNameList();
+  //
+  //   _makeRecordList();
+  //
+  //   _makeRecordDetailList();
+  // }
+  //
+  //
+  //
 
   ///
   @override
   Widget build(BuildContext context) {
-    // ignore: always_specify_types
-    Future(_init);
+    // // ignore: always_specify_types
+    // Future(_init);
 
     return Scaffold(
       appBar: AppBar(
@@ -80,12 +97,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
         actions: <Widget>[
           IconButton(
             onPressed: () {
-              RakutenPointsDialog(
-                context: context,
-                widget: RecordInputAlert(isar: widget.isar),
+              appParamNotifier.setSelectedListYearmonth(yearmonth: DateTime.now().yyyymm);
+
+              Navigator.pushReplacement(
+                context,
+                // ignore: inference_failure_on_instance_creation, always_specify_types
+                MaterialPageRoute(builder: (context) => HomeScreen(isar: widget.isar)),
               );
             },
-            icon: const Icon(Icons.input),
+            icon: const Icon(Icons.refresh),
           ),
         ],
       ),
@@ -117,6 +137,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                   RakutenPointsDialog(
                     context: context,
                     widget: CategoryNameInputAlert(isar: widget.isar, categoryNameList: categoryNameList),
+                    clearBarrierColor: true,
                   );
                 },
                 child: const Text('input category'),
@@ -127,6 +148,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                   RakutenPointsDialog(
                     context: context,
                     widget: ActionNameInputAlert(isar: widget.isar, actionNameList: actionNameList),
+                    clearBarrierColor: true,
                   );
                 },
                 child: const Text('input action'),
@@ -138,6 +160,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                 onPressed: () => RakutenPointsDialog(
                   context: context,
                   widget: DataExportAlert(isar: widget.isar),
+                  clearBarrierColor: true,
                 ),
                 child: const Text('データエクスポート'),
               ),
@@ -145,6 +168,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                 onPressed: () => RakutenPointsDialog(
                   context: context,
                   widget: DataImportAlert(isar: widget.isar),
+                  clearBarrierColor: true,
                 ),
                 child: const Text('データインポート'),
               ),
@@ -200,57 +224,97 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
         sagaku = lastPrice - recordMap[date]!.price;
       }
 
+      int sum = 0;
+      if (recordDetailMap[date] != null) {
+        for (final RecordDetail element in recordDetailMap[date]!) {
+          sum += element.price;
+        }
+      }
+
       list.add(
         Container(
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
           ),
 
-          child: Row(
-            children: <Widget>[
-              Container(
-                width: 50,
-                alignment: Alignment.topLeft,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: context.screenSize.height / 12),
 
-                child: (i == 0 || recordMap[date] == null)
-                    ? const SizedBox(height: 50)
-                    : SizedBox(
-                        height: 50,
-                        child: GestureDetector(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: DefaultTextStyle(
+                style: const TextStyle(fontSize: 12),
+                child: Row(
+                  children: <Widget>[
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Text(date),
+
+                        const SizedBox(height: 10),
+
+                        GestureDetector(
                           onTap: () {
                             RakutenPointsDialog(
                               context: context,
-                              widget: RecordDetailListAlert(
-                                isar: widget.isar,
-                                date: recordList![i].date,
-
-                                sagaku: sagaku,
-
-                                recordDetailList: recordDetailMap[recordList![i].date] ?? <RecordDetail>[],
-                              ),
+                              widget: RecordInputAlert(isar: widget.isar, date: date, record: recordMap[date]),
+                              clearBarrierColor: true,
                             );
                           },
-
-                          child: CircleAvatar(backgroundColor: Colors.blueGrey.withValues(alpha: 0.2), radius: 15),
+                          child: Icon(Icons.input, color: Colors.white.withValues(alpha: 0.4)),
                         ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          Text((recordMap[date] != null) ? recordMap[date]!.price.toString().toCurrency() : ''),
+
+                          const SizedBox(height: 5),
+
+                          if (i == 0 || recordMap[date] == null)
+                            const Column(children: <Widget>[SizedBox.shrink(), SizedBox.shrink()])
+                          else
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                Text(
+                                  sagaku.toString().toCurrency(),
+                                  style: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                Text(
+                                  sum.toString().toCurrency(),
+                                  style: TextStyle(color: Colors.purpleAccent.withValues(alpha: 0.6)),
+                                ),
+                              ],
+                            ),
+                        ],
                       ),
-              ),
+                    ),
 
-              Text(date),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Text((recordMap[date] != null) ? recordMap[date]!.price.toString().toCurrency() : ''),
-
-                    if (i == 0 || recordMap[date] == null)
-                      const SizedBox.shrink()
-                    else
-                      Text(sagaku.toString().toCurrency(), style: TextStyle(color: Colors.grey.withValues(alpha: 0.5))),
+                    SizedBox(
+                      width: 60,
+                      child: (recordMap[date] != null && i > 0)
+                          ? IconButton(
+                              onPressed: () {
+                                RakutenPointsDialog(
+                                  context: context,
+                                  widget: RecordDetailListAlert(isar: widget.isar, date: date, record: recordMap[date]),
+                                  clearBarrierColor: true,
+                                );
+                              },
+                              icon: Icon(Icons.info_outline, color: Colors.white.withValues(alpha: 0.4)),
+                            )
+                          : null,
+                    ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       );
