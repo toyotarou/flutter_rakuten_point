@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 
+import '../../collections/action_name.dart';
+import '../../collections/category_name.dart';
 import '../../collections/record.dart';
+import '../../controllers/controllers_mixin.dart';
 import '../../extensions/extensions.dart';
+import '../../repository/action_names_repository.dart';
+import '../../repository/category_names_repository.dart';
 
 class RecordDetailInputAlert extends ConsumerStatefulWidget {
   const RecordDetailInputAlert({super.key, required this.isar, required this.date, this.record});
@@ -16,10 +21,15 @@ class RecordDetailInputAlert extends ConsumerStatefulWidget {
   ConsumerState<RecordDetailInputAlert> createState() => _RecordDetailInputAlertState();
 }
 
-class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert> {
+class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
+    with ControllersMixin<RecordDetailInputAlert> {
   final List<TextEditingController> _priceTecs = <TextEditingController>[];
 
   List<FocusNode> focusNodeList = <FocusNode>[];
+
+  List<CategoryName>? categoryNameList = <CategoryName>[];
+
+  List<ActionName>? actionNameList = <ActionName>[];
 
   ///
   @override
@@ -33,6 +43,10 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
 
     // ignore: always_specify_types
     focusNodeList = List.generate(100, (int index) => FocusNode());
+
+    makeCategoryNameList();
+
+    makeActionNameList();
   }
 
   ///
@@ -54,8 +68,26 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[const Text('Record Detail Input'), Text(widget.date)],
+                children: <Widget>[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const Text('Record Detail Input'),
+                      const SizedBox(height: 10),
+                      Text(widget.date),
+                    ],
+                  ),
+
+                  ElevatedButton(
+                    onPressed: () {},
+
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
+
+                    child: const Text('input'),
+                  ),
+                ],
               ),
+
               Divider(color: Colors.white.withValues(alpha: 0.4), thickness: 5),
 
               Expanded(child: _displayInputParts()),
@@ -69,6 +101,50 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
   ///
   Widget _displayInputParts() {
     final List<Widget> list = <Widget>[];
+
+    final List<String> categoryNames = <String>[''];
+
+    categoryNameList?.forEach((CategoryName element) => categoryNames.add(element.name));
+
+    final List<String> actionNames = <String>[''];
+
+    actionNameList?.forEach((ActionName element) => actionNames.add(element.name));
+
+    // ignore: always_specify_types
+    final DropdownButton<String> categoryDropdownButton = DropdownButton(
+      items: categoryNames
+          .map(
+            // ignore: always_specify_types
+            (String e) => DropdownMenuItem(
+              value: e,
+              child: Text(e, style: const TextStyle(fontSize: 12)),
+            ),
+          )
+          .toList(),
+      onChanged: (String? value) {},
+
+      isExpanded: true,
+      dropdownColor: Colors.pinkAccent.withOpacity(0.1),
+      iconEnabledColor: Colors.white,
+    );
+
+    // ignore: always_specify_types
+    final DropdownButton<String> actionDropdownButton = DropdownButton(
+      items: actionNames
+          .map(
+            // ignore: always_specify_types
+            (String e) => DropdownMenuItem(
+              value: e,
+              child: Text(e, style: const TextStyle(fontSize: 12)),
+            ),
+          )
+          .toList(),
+      onChanged: (String? value) {},
+
+      isExpanded: true,
+      dropdownColor: Colors.pinkAccent.withOpacity(0.1),
+      iconEnabledColor: Colors.white,
+    );
 
     for (int i = 0; i < 10; i++) {
       // final String item = spendTimePlacesControllerState.spendItem[i];
@@ -102,6 +178,18 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
                 ),
                 child: Column(
                   children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Expanded(flex: 2, child: categoryDropdownButton),
+
+                        const SizedBox(width: 10),
+
+                        Expanded(child: actionDropdownButton),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
                     TextField(
                       keyboardType: TextInputType.number,
                       controller: _priceTecs[i],
@@ -143,5 +231,23 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
         ),
       ],
     );
+  }
+
+  ///
+  Future<void> makeCategoryNameList() async {
+    CategoryNamesRepository().getCategoryNameList(isar: widget.isar).then((List<CategoryName>? value) {
+      setState(() {
+        categoryNameList = value;
+      });
+    });
+  }
+
+  ///
+  Future<void> makeActionNameList() async {
+    ActionNamesRepository().getActionNameList(isar: widget.isar).then((List<ActionName>? value) {
+      setState(() {
+        actionNameList = value;
+      });
+    });
   }
 }

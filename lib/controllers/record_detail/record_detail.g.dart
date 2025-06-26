@@ -1,24 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'app_param.dart';
+part of 'record_detail.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appParamHash() => r'038c647bd26fc7c3f11dc5ac9491a7c75357d9b9';
+String _$recordDetailHash() => r'5b1680b112708f50c90a8f07ab83c40e3bc13553';
 
-/// See also [AppParam].
-@ProviderFor(AppParam)
-final appParamProvider = NotifierProvider<AppParam, AppParamState>.internal(
-  AppParam.new,
-  name: r'appParamProvider',
+/// See also [RecordDetail].
+@ProviderFor(RecordDetail)
+final recordDetailProvider =
+    NotifierProvider<RecordDetail, RecordDetailState>.internal(
+  RecordDetail.new,
+  name: r'recordDetailProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$appParamHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$recordDetailHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$AppParam = Notifier<AppParamState>;
+typedef _$RecordDetail = Notifier<RecordDetailState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
