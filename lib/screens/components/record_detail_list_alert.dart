@@ -7,11 +7,12 @@ import '../parts/rakuten_points_dialog.dart';
 import 'record_detail_input_alert.dart';
 
 class RecordDetailListAlert extends ConsumerStatefulWidget {
-  const RecordDetailListAlert({super.key, required this.isar, required this.date, this.record});
+  const RecordDetailListAlert({super.key, required this.isar, required this.date, this.record, required this.sagaku});
 
   final Isar isar;
   final String date;
   final Record? record;
+  final int sagaku;
 
   @override
   ConsumerState<RecordDetailListAlert> createState() => _RecordDetailListAlertState();
@@ -27,30 +28,48 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[const Text('Record Detail List'), const SizedBox(height: 10), Text(widget.date)],
-                  ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 80),
 
-                  ElevatedButton(
-                    onPressed: () {
-                      RakutenPointsDialog(
-                        context: context,
-                        widget: RecordDetailInputAlert(isar: widget.isar, date: widget.date, record: widget.record),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                        clearBarrierColor: true,
-                      );
-                    },
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
+                  children: <Widget>[
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        const Text('Record Detail List'),
+                        const SizedBox(height: 10),
+                        Text(widget.date),
+                      ],
+                    ),
 
-                    child: const Text('input'),
-                  ),
-                ],
+                    ElevatedButton(
+                      onPressed: () {
+                        RakutenPointsDialog(
+                          context: context,
+                          widget: RecordDetailInputAlert(
+                            isar: widget.isar,
+                            date: widget.date,
+                            record: widget.record,
+
+                            sagaku: widget.sagaku,
+                          ),
+
+                          clearBarrierColor: true,
+                        );
+                      },
+
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
+
+                      child: const Text('input'),
+                    ),
+                  ],
+                ),
               ),
+
               Divider(color: Colors.white.withValues(alpha: 0.4), thickness: 5),
             ],
           ),

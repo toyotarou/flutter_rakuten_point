@@ -303,7 +303,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                               onPressed: () {
                                 RakutenPointsDialog(
                                   context: context,
-                                  widget: RecordDetailListAlert(isar: widget.isar, date: date, record: recordMap[date]),
+                                  widget: RecordDetailListAlert(
+                                    isar: widget.isar,
+                                    date: date,
+                                    record: recordMap[date],
+
+                                    sagaku: sagaku,
+                                  ),
                                   clearBarrierColor: true,
                                 );
                               },

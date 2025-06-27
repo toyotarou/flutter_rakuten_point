@@ -11,11 +11,12 @@ import '../../repository/action_names_repository.dart';
 import '../../repository/category_names_repository.dart';
 
 class RecordDetailInputAlert extends ConsumerStatefulWidget {
-  const RecordDetailInputAlert({super.key, required this.isar, required this.date, this.record});
+  const RecordDetailInputAlert({super.key, required this.isar, required this.date, this.record, required this.sagaku});
 
   final Isar isar;
   final String date;
   final Record? record;
+  final int sagaku;
 
   @override
   ConsumerState<RecordDetailInputAlert> createState() => _RecordDetailInputAlertState();
@@ -47,6 +48,11 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
     makeCategoryNameList();
 
     makeActionNameList();
+
+    if (widget.record != null) {
+      // ignore: always_specify_types
+      Future(() => recordDetailNotifier.setBaseDiff(baseDiff: widget.sagaku.toString()));
+    }
   }
 
   ///
@@ -66,26 +72,44 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
           padding: const EdgeInsets.all(10),
           child: Column(
             children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const Text('Record Detail Input'),
-                      const SizedBox(height: 10),
-                      Text(widget.date),
-                    ],
-                  ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 80),
 
-                  ElevatedButton(
-                    onPressed: () {},
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                    child: const Text('input'),
-                  ),
-                ],
+                  children: <Widget>[
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        const Text('Record Detail Input'),
+                        const SizedBox(height: 10),
+                        Text(widget.date),
+
+                        const SizedBox(height: 10),
+
+                        Text(
+                          (recordDetailState.diff != 0)
+                              ? recordDetailState.diff.toString().toCurrency()
+                              : (recordDetailState.baseDiff == '')
+                              ? ''
+                              : recordDetailState.baseDiff.toCurrency(),
+                          style: TextStyle(color: (recordDetailState.diff == 0) ? Colors.yellowAccent : Colors.white),
+                        ),
+                      ],
+                    ),
+
+                    ElevatedButton(
+                      onPressed: () {},
+
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
+
+                      child: const Text('input'),
+                    ),
+                  ],
+                ),
               ),
 
               Divider(color: Colors.white.withValues(alpha: 0.4), thickness: 5),
@@ -109,42 +133,6 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
     final List<String> actionNames = <String>[''];
 
     actionNameList?.forEach((ActionName element) => actionNames.add(element.name));
-
-    // ignore: always_specify_types
-    final DropdownButton<String> categoryDropdownButton = DropdownButton(
-      items: categoryNames
-          .map(
-            // ignore: always_specify_types
-            (String e) => DropdownMenuItem(
-              value: e,
-              child: Text(e, style: const TextStyle(fontSize: 12)),
-            ),
-          )
-          .toList(),
-      onChanged: (String? value) {},
-
-      isExpanded: true,
-      dropdownColor: Colors.pinkAccent.withOpacity(0.1),
-      iconEnabledColor: Colors.white,
-    );
-
-    // ignore: always_specify_types
-    final DropdownButton<String> actionDropdownButton = DropdownButton(
-      items: actionNames
-          .map(
-            // ignore: always_specify_types
-            (String e) => DropdownMenuItem(
-              value: e,
-              child: Text(e, style: const TextStyle(fontSize: 12)),
-            ),
-          )
-          .toList(),
-      onChanged: (String? value) {},
-
-      isExpanded: true,
-      dropdownColor: Colors.pinkAccent.withOpacity(0.1),
-      iconEnabledColor: Colors.white,
-    );
 
     for (int i = 0; i < 10; i++) {
       // final String item = spendTimePlacesControllerState.spendItem[i];
@@ -180,37 +168,116 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
                   children: <Widget>[
                     Row(
                       children: <Widget>[
-                        Expanded(flex: 2, child: categoryDropdownButton),
+                        Expanded(
+                          flex: 2,
+                          // ignore: always_specify_types
+                          child: DropdownButton(
+                            isExpanded: true,
+                            dropdownColor: Colors.pinkAccent.withOpacity(0.1),
+                            iconEnabledColor: Colors.white,
+
+                            items: categoryNames
+                                .map(
+                                  // ignore: always_specify_types
+                                  (String e) => DropdownMenuItem(
+                                    value: e,
+                                    child: Text(e, style: const TextStyle(fontSize: 12)),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (String? value) {
+                              if (value != null) {
+                                recordDetailNotifier.setCategoryNameList(pos: i, value: value);
+                              }
+                            },
+                          ),
+                        ),
 
                         const SizedBox(width: 10),
 
-                        Expanded(child: actionDropdownButton),
+                        Expanded(
+                          // ignore: always_specify_types
+                          child: DropdownButton(
+                            isExpanded: true,
+                            dropdownColor: Colors.pinkAccent.withOpacity(0.1),
+                            iconEnabledColor: Colors.white,
+
+                            items: actionNames
+                                .map(
+                                  // ignore: always_specify_types
+                                  (String e) => DropdownMenuItem(
+                                    value: e,
+                                    child: Text(e, style: const TextStyle(fontSize: 12)),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (String? value) {
+                              if (value != null) {
+                                recordDetailNotifier.setActionNameList(pos: i, value: value);
+                              }
+                            },
+                          ),
+                        ),
                       ],
                     ),
 
                     const SizedBox(height: 10),
 
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      controller: _priceTecs[i],
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                        hintText: '金額(10桁以内)',
-                        filled: true,
-                        border: OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
-                      ),
-                      style: const TextStyle(fontSize: 12),
+                    Row(
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () => recordDetailNotifier.setMinusCheck(pos: i),
+                          child: Icon(
+                            Icons.remove,
+                            color: (recordDetailState.minusCheck[i]) ? Colors.redAccent : Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
 
-                      // onChanged: (String value) =>
-                      //     spendTimePlacesNotifier.setSpendPrice(pos: i, price: (value == '') ? 0 : value.toInt()),
-                      //
-                      //
-                      //
-                      onTapOutside: (PointerDownEvent event) => FocusManager.instance.primaryFocus?.unfocus(),
-                      focusNode: focusNodeList[i],
-                      onTap: () => context.showKeyboard(focusNodeList[i]),
+                        // Expanded(
+                        //   child: TextField(
+                        //     keyboardType: TextInputType.number,
+                        //     controller: _priceTecs[i],
+                        //     decoration: const InputDecoration(
+                        //       isDense: true,
+                        //       contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                        //       hintText: '金額(10桁以内)',
+                        //       filled: true,
+                        //       border: OutlineInputBorder(),
+                        //       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+                        //     ),
+                        //     style: const TextStyle(fontSize: 12),
+                        //
+                        //     onChanged: (String value) {
+                        //       recordDetailNotifier.setPriceList(pos: i, value: (value == '') ? '0' : value);
+                        //     },
+                        //
+                        //     onTapOutside: (PointerDownEvent event) => FocusManager.instance.primaryFocus?.unfocus(),
+                        //     focusNode: focusNodeList[i],
+                        //     onTap: () => context.showKeyboard(focusNodeList[i]),
+                        //   ),
+                        // ),
+                        Expanded(
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            controller: _priceTecs[i],
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                              hintText: '金額(10桁以内)',
+                              filled: true,
+                              border: OutlineInputBorder(),
+                              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+                            ),
+                            style: const TextStyle(fontSize: 12),
+                            onChanged: (String value) =>
+                                recordDetailNotifier.setPriceList(pos: i, value: (value == '') ? 0 : value.toInt()),
+                            onTapOutside: (PointerDownEvent event) => FocusManager.instance.primaryFocus?.unfocus(),
+                            focusNode: focusNodeList[i],
+                            onTap: () => context.showKeyboard(focusNodeList[i]),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
