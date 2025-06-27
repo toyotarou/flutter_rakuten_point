@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../collections/record_detail.dart';
 import '../../extensions/extensions.dart';
 
 part 'record_detail.freezed.dart';
@@ -8,8 +9,8 @@ part 'record_detail.freezed.dart';
 part 'record_detail.g.dart';
 
 @freezed
-class RecordDetailState with _$RecordDetailState {
-  const factory RecordDetailState({
+class RecordDetailControllerState with _$RecordDetailControllerState {
+  const factory RecordDetailControllerState({
     @Default(-1) int itemPos,
     //
     @Default(0) int diff,
@@ -20,14 +21,14 @@ class RecordDetailState with _$RecordDetailState {
     @Default(<String>[]) List<String> actionNameList,
     @Default(<int>[]) List<int> priceList,
     @Default(<bool>[]) List<bool> minusCheck,
-  }) = _RecordDetailState;
+  }) = _RecordDetailControllerState;
 }
 
 @Riverpod(keepAlive: true)
-class RecordDetail extends _$RecordDetail {
+class RecordDetailController extends _$RecordDetailController {
   ///
   @override
-  RecordDetailState build() {
+  RecordDetailControllerState build() {
     // ignore: always_specify_types
     final List<String> categoryNames = List.generate(10, (int index) => '');
     // ignore: always_specify_types
@@ -39,12 +40,73 @@ class RecordDetail extends _$RecordDetail {
     // ignore: always_specify_types
     final List<int> prices = List.generate(10, (int index) => 0);
 
-    return RecordDetailState(
+    return RecordDetailControllerState(
       categoryNameList: categoryNames,
       actionNameList: actionNames,
       priceList: prices,
 
       minusCheck: minusChecks,
+    );
+  }
+
+  ///
+  void setUpdateRecordDetail({required List<RecordDetail> updateRecordDetailList, required int baseDiff}) {
+    try {
+      final List<String> categoryNameList = <String>[...state.categoryNameList];
+      final List<String> actionNameList = <String>[...state.actionNameList];
+      final List<int> priceList = <int>[...state.priceList];
+      final List<bool> minusChecks = <bool>[...state.minusCheck];
+
+      int diff = 0;
+
+      for (int i = 0; i < updateRecordDetailList.length; i++) {
+        categoryNameList[i] = updateRecordDetailList[i].category;
+        actionNameList[i] = updateRecordDetailList[i].action;
+
+        diff += updateRecordDetailList[i].price;
+
+        if (updateRecordDetailList[i].price < 0) {
+          priceList[i] = updateRecordDetailList[i].price * -1;
+          minusChecks[i] = true;
+        } else {
+          priceList[i] = updateRecordDetailList[i].price;
+          minusChecks[i] = false;
+        }
+      }
+
+      state = state.copyWith(
+        categoryNameList: categoryNameList,
+        actionNameList: actionNameList,
+        priceList: priceList,
+        minusCheck: minusChecks,
+        diff: diff,
+      );
+      // ignore: empty_catches
+    } catch (e) {}
+  }
+
+  ///
+  Future<void> clearInputValue() async {
+    // ignore: always_specify_types
+    final List<String> categoryNames = List.generate(10, (int index) => '');
+    // ignore: always_specify_types
+    final List<String> actionNames = List.generate(10, (int index) => '');
+
+    // ignore: always_specify_types
+    final List<bool> minusChecks = List.generate(20, (int index) => false);
+
+    // ignore: always_specify_types
+    final List<int> prices = List.generate(10, (int index) => 0);
+
+    state = state.copyWith(
+      categoryNameList: categoryNames,
+      actionNameList: actionNames,
+      minusCheck: minusChecks,
+      priceList: prices,
+
+      itemPos: -1,
+      baseDiff: '',
+      diff: 0,
     );
   }
 

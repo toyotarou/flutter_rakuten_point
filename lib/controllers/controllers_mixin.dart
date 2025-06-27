@@ -12,9 +12,9 @@ mixin ControllersMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   //==========================================//
 
-  RecordDetailState get recordDetailState => ref.watch(recordDetailProvider);
+  RecordDetailControllerState get recordDetailState => ref.watch(recordDetailControllerProvider);
 
-  RecordDetail get recordDetailNotifier => ref.read(recordDetailProvider.notifier);
+  RecordDetailController get recordDetailNotifier => ref.read(recordDetailControllerProvider.notifier);
 
   //==========================================//
 }

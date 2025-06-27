@@ -3,22 +3,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 
 import '../../collections/record.dart';
+import '../../collections/record_detail.dart';
+import '../../controllers/controllers_mixin.dart';
 import '../parts/rakuten_points_dialog.dart';
 import 'record_detail_input_alert.dart';
 
 class RecordDetailListAlert extends ConsumerStatefulWidget {
-  const RecordDetailListAlert({super.key, required this.isar, required this.date, this.record, required this.sagaku});
+  const RecordDetailListAlert({
+    super.key,
+    required this.isar,
+    required this.date,
+    this.record,
+    required this.sagaku,
+    this.recordDetail,
+  });
 
   final Isar isar;
   final String date;
   final Record? record;
   final int sagaku;
+  final List<RecordDetail>? recordDetail;
 
   @override
   ConsumerState<RecordDetailListAlert> createState() => _RecordDetailListAlertState();
 }
 
-class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
+class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert>
+    with ControllersMixin<RecordDetailListAlert> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +59,8 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
 
                     ElevatedButton(
                       onPressed: () {
+                        recordDetailNotifier.clearInputValue();
+
                         RakutenPointsDialog(
                           context: context,
                           widget: RecordDetailInputAlert(
@@ -56,6 +69,8 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert> {
                             record: widget.record,
 
                             sagaku: widget.sagaku,
+
+                            recordDetail: widget.recordDetail,
                           ),
 
                           clearBarrierColor: true,

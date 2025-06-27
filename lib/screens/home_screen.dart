@@ -67,21 +67,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     });
   }
 
-  //
-  // ///
-  // void _init() {
-  //   _makeCategoryNameList();
-  //
-  //   _makeActionNameList();
-  //
-  //   _makeRecordList();
-  //
-  //   _makeRecordDetailList();
-  // }
-  //
-  //
-  //
-
   ///
   @override
   Widget build(BuildContext context) {
@@ -309,6 +294,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                                     record: recordMap[date],
 
                                     sagaku: sagaku,
+
+                                    recordDetail: recordDetailMap[date],
                                   ),
                                   clearBarrierColor: true,
                                 );

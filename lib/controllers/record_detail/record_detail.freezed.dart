@@ -15,7 +15,7 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
-mixin _$RecordDetailState {
+mixin _$RecordDetailControllerState {
   int get itemPos => throw _privateConstructorUsedError; //
   int get diff => throw _privateConstructorUsedError;
   String get baseDiff => throw _privateConstructorUsedError; //
@@ -25,15 +25,17 @@ mixin _$RecordDetailState {
   List<bool> get minusCheck => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
-  $RecordDetailStateCopyWith<RecordDetailState> get copyWith =>
-      throw _privateConstructorUsedError;
+  $RecordDetailControllerStateCopyWith<RecordDetailControllerState>
+      get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $RecordDetailStateCopyWith<$Res> {
-  factory $RecordDetailStateCopyWith(
-          RecordDetailState value, $Res Function(RecordDetailState) then) =
-      _$RecordDetailStateCopyWithImpl<$Res, RecordDetailState>;
+abstract class $RecordDetailControllerStateCopyWith<$Res> {
+  factory $RecordDetailControllerStateCopyWith(
+          RecordDetailControllerState value,
+          $Res Function(RecordDetailControllerState) then) =
+      _$RecordDetailControllerStateCopyWithImpl<$Res,
+          RecordDetailControllerState>;
   @useResult
   $Res call(
       {int itemPos,
@@ -46,9 +48,10 @@ abstract class $RecordDetailStateCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$RecordDetailStateCopyWithImpl<$Res, $Val extends RecordDetailState>
-    implements $RecordDetailStateCopyWith<$Res> {
-  _$RecordDetailStateCopyWithImpl(this._value, this._then);
+class _$RecordDetailControllerStateCopyWithImpl<$Res,
+        $Val extends RecordDetailControllerState>
+    implements $RecordDetailControllerStateCopyWith<$Res> {
+  _$RecordDetailControllerStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -100,11 +103,12 @@ class _$RecordDetailStateCopyWithImpl<$Res, $Val extends RecordDetailState>
 }
 
 /// @nodoc
-abstract class _$$RecordDetailStateImplCopyWith<$Res>
-    implements $RecordDetailStateCopyWith<$Res> {
-  factory _$$RecordDetailStateImplCopyWith(_$RecordDetailStateImpl value,
-          $Res Function(_$RecordDetailStateImpl) then) =
-      __$$RecordDetailStateImplCopyWithImpl<$Res>;
+abstract class _$$RecordDetailControllerStateImplCopyWith<$Res>
+    implements $RecordDetailControllerStateCopyWith<$Res> {
+  factory _$$RecordDetailControllerStateImplCopyWith(
+          _$RecordDetailControllerStateImpl value,
+          $Res Function(_$RecordDetailControllerStateImpl) then) =
+      __$$RecordDetailControllerStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -118,11 +122,13 @@ abstract class _$$RecordDetailStateImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$RecordDetailStateImplCopyWithImpl<$Res>
-    extends _$RecordDetailStateCopyWithImpl<$Res, _$RecordDetailStateImpl>
-    implements _$$RecordDetailStateImplCopyWith<$Res> {
-  __$$RecordDetailStateImplCopyWithImpl(_$RecordDetailStateImpl _value,
-      $Res Function(_$RecordDetailStateImpl) _then)
+class __$$RecordDetailControllerStateImplCopyWithImpl<$Res>
+    extends _$RecordDetailControllerStateCopyWithImpl<$Res,
+        _$RecordDetailControllerStateImpl>
+    implements _$$RecordDetailControllerStateImplCopyWith<$Res> {
+  __$$RecordDetailControllerStateImplCopyWithImpl(
+      _$RecordDetailControllerStateImpl _value,
+      $Res Function(_$RecordDetailControllerStateImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -136,7 +142,7 @@ class __$$RecordDetailStateImplCopyWithImpl<$Res>
     Object? priceList = null,
     Object? minusCheck = null,
   }) {
-    return _then(_$RecordDetailStateImpl(
+    return _then(_$RecordDetailControllerStateImpl(
       itemPos: null == itemPos
           ? _value.itemPos
           : itemPos // ignore: cast_nullable_to_non_nullable
@@ -171,8 +177,9 @@ class __$$RecordDetailStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$RecordDetailStateImpl implements _RecordDetailState {
-  const _$RecordDetailStateImpl(
+class _$RecordDetailControllerStateImpl
+    implements _RecordDetailControllerState {
+  const _$RecordDetailControllerStateImpl(
       {this.itemPos = -1,
       this.diff = 0,
       this.baseDiff = '',
@@ -236,14 +243,14 @@ class _$RecordDetailStateImpl implements _RecordDetailState {
 
   @override
   String toString() {
-    return 'RecordDetailState(itemPos: $itemPos, diff: $diff, baseDiff: $baseDiff, categoryNameList: $categoryNameList, actionNameList: $actionNameList, priceList: $priceList, minusCheck: $minusCheck)';
+    return 'RecordDetailControllerState(itemPos: $itemPos, diff: $diff, baseDiff: $baseDiff, categoryNameList: $categoryNameList, actionNameList: $actionNameList, priceList: $priceList, minusCheck: $minusCheck)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$RecordDetailStateImpl &&
+            other is _$RecordDetailControllerStateImpl &&
             (identical(other.itemPos, itemPos) || other.itemPos == itemPos) &&
             (identical(other.diff, diff) || other.diff == diff) &&
             (identical(other.baseDiff, baseDiff) ||
@@ -272,20 +279,21 @@ class _$RecordDetailStateImpl implements _RecordDetailState {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$RecordDetailStateImplCopyWith<_$RecordDetailStateImpl> get copyWith =>
-      __$$RecordDetailStateImplCopyWithImpl<_$RecordDetailStateImpl>(
-          this, _$identity);
+  _$$RecordDetailControllerStateImplCopyWith<_$RecordDetailControllerStateImpl>
+      get copyWith => __$$RecordDetailControllerStateImplCopyWithImpl<
+          _$RecordDetailControllerStateImpl>(this, _$identity);
 }
 
-abstract class _RecordDetailState implements RecordDetailState {
-  const factory _RecordDetailState(
+abstract class _RecordDetailControllerState
+    implements RecordDetailControllerState {
+  const factory _RecordDetailControllerState(
       {final int itemPos,
       final int diff,
       final String baseDiff,
       final List<String> categoryNameList,
       final List<String> actionNameList,
       final List<int> priceList,
-      final List<bool> minusCheck}) = _$RecordDetailStateImpl;
+      final List<bool> minusCheck}) = _$RecordDetailControllerStateImpl;
 
   @override
   int get itemPos;
@@ -303,6 +311,6 @@ abstract class _RecordDetailState implements RecordDetailState {
   List<bool> get minusCheck;
   @override
   @JsonKey(ignore: true)
-  _$$RecordDetailStateImplCopyWith<_$RecordDetailStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$RecordDetailControllerStateImplCopyWith<_$RecordDetailControllerStateImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }
