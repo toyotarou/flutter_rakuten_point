@@ -196,56 +196,60 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
                   children: <Widget>[
                     Row(
                       children: <Widget>[
-                        Expanded(
-                          flex: 2,
-                          // ignore: always_specify_types
-                          child: DropdownButton(
-                            isExpanded: true,
-                            dropdownColor: Colors.pinkAccent.withOpacity(0.1),
-                            iconEnabledColor: Colors.white,
-                            value: category,
-                            items: categoryNames
-                                .map(
-                                  // ignore: always_specify_types
-                                  (String e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e, style: const TextStyle(fontSize: 12)),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (String? value) {
-                              if (value != null) {
-                                recordDetailNotifier.setCategoryNameList(pos: i, value: value);
-                              }
-                            },
+                        if (categoryNames.contains(category)) ...<Widget>[
+                          Expanded(
+                            flex: 2,
+                            // ignore: always_specify_types
+                            child: DropdownButton(
+                              isExpanded: true,
+                              dropdownColor: Colors.pinkAccent.withOpacity(0.1),
+                              iconEnabledColor: Colors.white,
+                              value: category,
+                              items: categoryNames
+                                  .map(
+                                    // ignore: always_specify_types
+                                    (String e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Text(e, style: const TextStyle(fontSize: 12)),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (String? value) {
+                                if (value != null) {
+                                  recordDetailNotifier.setCategoryNameList(pos: i, value: value);
+                                }
+                              },
+                            ),
                           ),
-                        ),
+                        ],
 
                         const SizedBox(width: 10),
 
-                        Expanded(
-                          // ignore: always_specify_types
-                          child: DropdownButton(
-                            isExpanded: true,
-                            dropdownColor: Colors.pinkAccent.withOpacity(0.1),
-                            iconEnabledColor: Colors.white,
-                            value: action,
-                            items: actionNames
-                                .map(
-                                  // ignore: always_specify_types
-                                  (String e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e, style: const TextStyle(fontSize: 12)),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (String? value) {
-                              if (value != null) {
-                                recordDetailNotifier.setActionNameList(pos: i, value: value);
-                              }
-                            },
+                        if (actionNames.contains(action)) ...<Widget>[
+                          Expanded(
+                            // ignore: always_specify_types
+                            child: DropdownButton(
+                              isExpanded: true,
+                              dropdownColor: Colors.pinkAccent.withOpacity(0.1),
+                              iconEnabledColor: Colors.white,
+                              value: action,
+                              items: actionNames
+                                  .map(
+                                    // ignore: always_specify_types
+                                    (String e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Text(e, style: const TextStyle(fontSize: 12)),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (String? value) {
+                                if (value != null) {
+                                  recordDetailNotifier.setActionNameList(pos: i, value: value);
+                                }
+                              },
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
 
