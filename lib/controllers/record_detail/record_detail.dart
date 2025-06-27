@@ -79,7 +79,8 @@ class RecordDetailController extends _$RecordDetailController {
         actionNameList: actionNameList,
         priceList: priceList,
         minusCheck: minusChecks,
-        diff: diff,
+        baseDiff: baseDiff.toString(),
+        diff: baseDiff - diff,
       );
       // ignore: empty_catches
     } catch (e) {}

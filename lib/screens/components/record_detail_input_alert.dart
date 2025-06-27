@@ -380,10 +380,9 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
     countCheck[recordDetailPriceCount] = '';
 
     // 同数の場合、要素数は1になる
-    if (!errFlg) {
-      if (countCheck.length > 1) {
-        errFlg = true;
-      }
+
+    if (countCheck.length > 1) {
+      errFlg = true;
     }
 
     ////////////////////////// 同数チェック

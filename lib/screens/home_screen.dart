@@ -53,14 +53,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     // ignore: always_specify_types
     globalKeyList = List.generate(300, (int index) => GlobalKey());
 
-    _makeCategoryNameList();
-
-    _makeActionNameList();
-
-    _makeRecordList();
-
-    _makeRecordDetailList();
-
     // ignore: always_specify_types
     Future(() {
       appParamNotifier.setSelectedListYearmonth(yearmonth: DateTime.now().yyyymm);
@@ -68,10 +60,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   }
 
   ///
+  void _init() {
+    _makeCategoryNameList();
+
+    _makeActionNameList();
+
+    _makeRecordList();
+
+    _makeRecordDetailList();
+  }
+
+  ///
   @override
   Widget build(BuildContext context) {
-    // // ignore: always_specify_types
-    // Future(_init);
+    // ignore: always_specify_types
+    Future(_init);
 
     return Scaffold(
       appBar: AppBar(
