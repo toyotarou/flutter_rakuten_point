@@ -12,6 +12,7 @@ import '../../repository/action_names_repository.dart';
 import '../../repository/category_names_repository.dart';
 import '../../repository/record_details_repository.dart';
 import '../../utilities/functions.dart';
+import '../home_screen.dart';
 import '../parts/error_dialog.dart';
 
 class RecordDetailInputAlert extends ConsumerStatefulWidget {
@@ -43,6 +44,8 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
   List<CategoryName>? categoryNameList = <CategoryName>[];
 
   List<ActionName>? actionNameList = <ActionName>[];
+
+  bool isLoading = false;
 
   ///
   @override
@@ -95,59 +98,67 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: <Widget>[
-              ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 80),
+      body: Stack(
+        children: <Widget>[
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                children: <Widget>[
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 80),
 
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: <Widget>[
-                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: <Widget>[
-                        const Text('Record Detail Input'),
-                        const SizedBox(height: 10),
-                        Text(widget.date),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const Text('Record Detail Input'),
+                            const SizedBox(height: 10),
+                            Text(widget.date),
 
-                        const SizedBox(height: 10),
+                            const SizedBox(height: 10),
 
-                        Text(
-                          (recordDetailState.diff != 0)
-                              ? recordDetailState.diff.toString().toCurrency()
-                              : (recordDetailState.baseDiff == '')
-                              ? ''
-                              : recordDetailState.baseDiff.toCurrency(),
-                          style: TextStyle(color: (recordDetailState.diff == 0) ? Colors.yellowAccent : Colors.white),
+                            Text(
+                              (recordDetailState.diff != 0)
+                                  ? recordDetailState.diff.toString().toCurrency()
+                                  : (recordDetailState.baseDiff == '')
+                                  ? ''
+                                  : recordDetailState.baseDiff.toCurrency(),
+                              style: TextStyle(
+                                color: (recordDetailState.diff == 0) ? Colors.yellowAccent : Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            _inputRecordDetail();
+                          },
+
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
+
+                          child: const Text('input'),
                         ),
                       ],
                     ),
+                  ),
 
-                    ElevatedButton(
-                      onPressed: () {
-                        _inputRecordDetail();
-                      },
+                  Divider(color: Colors.white.withValues(alpha: 0.4), thickness: 5),
 
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
-
-                      child: const Text('input'),
-                    ),
-                  ],
-                ),
+                  Expanded(child: _displayInputParts()),
+                ],
               ),
-
-              Divider(color: Colors.white.withValues(alpha: 0.4), thickness: 5),
-
-              Expanded(child: _displayInputParts()),
-            ],
+            ),
           ),
-        ),
+
+          if (isLoading) ...<Widget>[const Center(child: CircularProgressIndicator())],
+        ],
       ),
     );
   }
@@ -329,6 +340,8 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
 
   ///
   Future<void> _inputRecordDetail() async {
+    setState(() => isLoading = true);
+
     final List<RecordDetail> list = <RecordDetail>[];
 
     bool errFlg = false;
@@ -427,14 +440,24 @@ class _RecordDetailInputAlertState extends ConsumerState<RecordDetailInputAlert>
         // ignore: always_specify_types
         value2,
       ) async {
-        // ignore: always_specify_types
-        await recordDetailNotifier.clearInputValue().then((value3) {
-          if (mounted) {
+        if (mounted) {
+          // ignore: always_specify_types
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() => isLoading = false);
+
+            for (int i = 0; i < 10; i++) {
+              _priceTecs[i].clear();
+            }
+
+            // ignore: use_build_context_synchronously
+            Navigator.pop(context);
+            // ignore: use_build_context_synchronously
             Navigator.pop(context);
 
-            Navigator.pop(context);
-          }
-        });
+            // ignore: inference_failure_on_instance_creation, use_build_context_synchronously, always_specify_types
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen(isar: widget.isar)));
+          });
+        }
       });
     });
   }

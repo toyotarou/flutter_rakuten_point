@@ -110,22 +110,13 @@ class _RecordInputAlertState extends ConsumerState<RecordInputAlert> with Contro
 
                 if (widget.record != null)
                   ElevatedButton(
-                    onPressed: () {
-                      // _updateActionName();
-                      //
-                      //
-                      //
-                      //
-                      //
-                    },
+                    onPressed: () => _updateRecord(),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
                     child: const Text('更新'),
                   )
                 else
                   ElevatedButton(
-                    onPressed: () {
-                      _inputRecord();
-                    },
+                    onPressed: () => _inputRecord(),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
                     child: const Text('登録'),
                   ),
@@ -193,4 +184,143 @@ class _RecordInputAlertState extends ConsumerState<RecordInputAlert> with Contro
       );
     });
   }
+
+  ///
+  Future<void> _updateRecord() async {
+    bool errFlg = false;
+
+    if (priceEditingController.text.trim() == '') {
+      errFlg = true;
+    }
+
+    if (!errFlg) {
+      for (final List<Object> element in <List<Object>>[
+        <Object>[priceEditingController.text.trim(), 10],
+      ]) {
+        if (!checkInputValueLengthCheck(value: element[0].toString().trim(), length: element[1] as int)) {
+          errFlg = true;
+        }
+      }
+    }
+
+    if (errFlg) {
+      // ignore: always_specify_types
+      Future.delayed(
+        Duration.zero,
+        () => error_dialog(
+          // ignore: use_build_context_synchronously
+          context: context,
+          title: '登録できません。',
+          content: '値を正しく入力してください。',
+        ),
+      );
+
+      return;
+    }
+
+    // await widget.isar.writeTxn(() async {
+    //   RecordsRepository().getRecord(isar: widget.isar, id: widget.record!.id).then((Record? value) async {
+    //     value!.price = priceEditingController.text.trim().toInt();
+    //
+    //     // ignore: always_specify_types
+    //     await RecordsRepository().updateRecord(isar: widget.isar, record: value).then((value) {});
+    //   });
+    // });
+
+    await RecordsRepository().deleteRecord(isar: widget.isar, id: widget.record!.id).then((value) {
+      final Record record = Record()
+        ..date = widget.date
+        ..price = priceEditingController.text.toInt();
+
+      // ignore: always_specify_types
+      RecordsRepository().inputRecord(isar: widget.isar, record: record).then((value) {
+        priceEditingController.clear();
+
+        // ignore: use_build_context_synchronously
+        Navigator.pop(context);
+
+        appParamNotifier.setSelectedListYearmonth(
+          yearmonth: '${widget.date.split('-')[0]}-${widget.date.split('-')[1]}',
+        );
+
+        Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
+          context,
+
+          // ignore: inference_failure_on_instance_creation, always_specify_types
+          MaterialPageRoute(builder: (BuildContext context) => HomeScreen(isar: widget.isar)),
+        );
+      });
+    });
+  }
+
+  //
+  //
+  //
+  //
+  // ///
+  // Future<void> _updateRecord() async {
+  //   bool errFlg = false;
+  //
+  //   if (priceEditingController.text.trim() == '') {
+  //     errFlg = true;
+  //   }
+  //
+  //   if (!errFlg) {
+  //     for (final List<Object> element in <List<Object>>[
+  //       <Object>[priceEditingController.text.trim(), 10],
+  //     ]) {
+  //       if (!checkInputValueLengthCheck(value: element[0].toString().trim(), length: element[1] as int)) {
+  //         errFlg = true;
+  //       }
+  //     }
+  //   }
+  //
+  //   if (errFlg) {
+  //     // ignore: always_specify_types
+  //     Future.delayed(
+  //       Duration.zero,
+  //       () => error_dialog(
+  //         // ignore: use_build_context_synchronously
+  //         context: context,
+  //         title: '登録できません。',
+  //         content: '値を正しく入力してください。',
+  //       ),
+  //     );
+  //
+  //     return;
+  //   }
+  //
+  //   await widget.isar.writeTxn(() async {
+  //     RecordsRepository().getRecord(isar: widget.isar, id: widget.record!.id).then((Record? value) async {
+  //       value!.price = priceEditingController.text.trim().toInt();
+  //
+  //       // ignore: always_specify_types
+  //       await RecordsRepository().updateRecord(isar: widget.isar, record: value).then((value2) {
+  //         priceEditingController.clear();
+  //
+  //         // ignore: use_build_context_synchronously
+  //         Navigator.pop(context);
+  //
+  //         appParamNotifier.setSelectedListYearmonth(
+  //           yearmonth: '${widget.date.split('-')[0]}-${widget.date.split('-')[1]}',
+  //         );
+  //
+  //         Navigator.pushReplacement(
+  //           // ignore: use_build_context_synchronously
+  //           context,
+  //
+  //           // ignore: inference_failure_on_instance_creation, always_specify_types
+  //           MaterialPageRoute(builder: (BuildContext context) => HomeScreen(isar: widget.isar)),
+  //         );
+  //       });
+  //     });
+  //   });
+  // }
+  //
+  //
+  //
+  //
+  //
+  //
 }
