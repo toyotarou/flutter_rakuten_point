@@ -212,12 +212,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
         sagaku = lastPrice - recordMap[date]!.price;
       }
 
+      //-----------------------------------------------//
       int sum = 0;
+
+      ////////////////////////// 同数チェック
+      int recordDetailCategoryCount = 0;
+      int recordDetailActionCount = 0;
+      int recordDetailPriceCount = 0;
+      ////////////////////////// 同数チェック
+
       if (recordDetailMap[date] != null) {
         for (final RecordDetail element in recordDetailMap[date]!) {
           sum += element.price;
+
+          if (element.category != '') {
+            recordDetailCategoryCount++;
+          }
+
+          if (element.action != '') {
+            recordDetailActionCount++;
+          }
+
+          if (element.price != 0) {
+            recordDetailPriceCount++;
+          }
         }
       }
+
+      ////////////////////////// 同数チェック
+      final Map<int, String> countCheck = <int, String>{};
+      countCheck[recordDetailCategoryCount] = '';
+      countCheck[recordDetailActionCount] = '';
+      countCheck[recordDetailPriceCount] = '';
+      ////////////////////////// 同数チェック
+
+      Color circleAvatarColor = (countCheck.length == 1 && sum == sagaku)
+          ? Colors.yellowAccent.withValues(alpha: 0.1)
+          : Colors.transparent;
+
+      if (recordMap[date] == null || i == 0) {
+        circleAvatarColor = Colors.transparent;
+      }
+
+      //-----------------------------------------------//
 
       list.add(
         Container(
@@ -229,86 +266,102 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
             constraints: BoxConstraints(minHeight: context.screenSize.height / 12),
 
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: DefaultTextStyle(
-                style: const TextStyle(fontSize: 12),
-                child: Row(
-                  children: <Widget>[
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        Text(date),
+              padding: const EdgeInsets.all(5),
 
-                        const SizedBox(height: 10),
-
-                        GestureDetector(
-                          onTap: () {
-                            RakutenPointsDialog(
-                              context: context,
-                              widget: RecordInputAlert(isar: widget.isar, date: date, record: recordMap[date]),
-                              clearBarrierColor: true,
-                            );
-                          },
-                          child: Icon(Icons.input, color: Colors.white.withValues(alpha: 0.4)),
-                        ),
-                      ],
-                    ),
-                    Expanded(
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: DefaultTextStyle(
+                      style: const TextStyle(fontSize: 12),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
-                          Text((recordMap[date] != null) ? recordMap[date]!.price.toString().toCurrency() : ''),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(date),
 
-                          const SizedBox(height: 5),
+                              Text((recordMap[date] != null) ? recordMap[date]!.price.toString().toCurrency() : ''),
+                            ],
+                          ),
 
-                          if (i == 0 || recordMap[date] == null)
-                            const Column(children: <Widget>[SizedBox.shrink(), SizedBox.shrink()])
-                          else
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                Text(
-                                  sagaku.toString().toCurrency(),
-                                  style: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
-                                ),
+                          const SizedBox(height: 10),
 
-                                const SizedBox(height: 5),
+                          Row(
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  CircleAvatar(radius: 10, backgroundColor: circleAvatarColor),
 
-                                Text(
-                                  sum.toString().toCurrency(),
-                                  style: TextStyle(color: Colors.purpleAccent.withValues(alpha: 0.6)),
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(width: 20),
+
+                                  GestureDetector(
+                                    onTap: () {
+                                      RakutenPointsDialog(
+                                        context: context,
+                                        widget: RecordInputAlert(
+                                          isar: widget.isar,
+                                          date: date,
+                                          record: recordMap[date],
+                                        ),
+                                        clearBarrierColor: true,
+                                      );
+                                    },
+                                    child: Icon(Icons.input, color: Colors.white.withValues(alpha: 0.4)),
+                                  ),
+                                ],
+                              ),
+
+                              Expanded(
+                                child: (i == 0 || recordMap[date] == null)
+                                    ? const Column(children: <Widget>[SizedBox.shrink(), SizedBox.shrink()])
+                                    : Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          Text(
+                                            sagaku.toString().toCurrency(),
+                                            style: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
+                                          ),
+
+                                          const SizedBox(height: 5),
+
+                                          Text(
+                                            sum.toString().toCurrency(),
+                                            style: TextStyle(color: Colors.purpleAccent.withValues(alpha: 0.6)),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
+                  ),
 
-                    SizedBox(
-                      width: 60,
-                      child: (recordMap[date] != null && i > 0)
-                          ? IconButton(
-                              onPressed: () {
-                                RakutenPointsDialog(
-                                  context: context,
-                                  widget: RecordDetailListAlert(
-                                    isar: widget.isar,
-                                    date: date,
-                                    record: recordMap[date],
+                  SizedBox(
+                    width: 60,
+                    child: (recordMap[date] != null && i > 0)
+                        ? IconButton(
+                            onPressed: () {
+                              RakutenPointsDialog(
+                                context: context,
+                                widget: RecordDetailListAlert(
+                                  isar: widget.isar,
+                                  date: date,
+                                  record: recordMap[date],
 
-                                    sagaku: sagaku,
+                                  sagaku: sagaku,
 
-                                    recordDetail: recordDetailMap[date],
-                                  ),
-                                  clearBarrierColor: true,
-                                );
-                              },
-                              icon: Icon(Icons.info_outline, color: Colors.white.withValues(alpha: 0.4)),
-                            )
-                          : null,
-                    ),
-                  ],
-                ),
+                                  recordDetail: recordDetailMap[date],
+                                ),
+                                clearBarrierColor: true,
+                              );
+                            },
+                            icon: Icon(Icons.info_outline, color: Colors.white.withValues(alpha: 0.4)),
+                          )
+                        : null,
+                  ),
+                ],
               ),
             ),
           ),
