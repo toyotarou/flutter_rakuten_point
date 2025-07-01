@@ -218,6 +218,7 @@ class _RecordInputAlertState extends ConsumerState<RecordInputAlert> with Contro
       return;
     }
 
+    // ignore: always_specify_types
     await RecordsRepository().deleteRecord(isar: widget.isar, id: widget.record!.id).then((value) {
       final Record record = Record()
         ..date = widget.date

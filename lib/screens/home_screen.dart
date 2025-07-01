@@ -8,15 +8,10 @@ import '../collections/record.dart';
 import '../collections/record_detail.dart';
 import '../controllers/controllers_mixin.dart';
 import '../extensions/extensions.dart';
-import '../repository/action_names_repository.dart';
-import '../repository/category_names_repository.dart';
-import '../repository/record_details_repository.dart';
-import '../repository/records_repository.dart';
 import 'components/action_name_input_alert.dart';
 import 'components/category_name_input_alert.dart';
 import 'components/csv_data/data_export_alert.dart';
 import 'components/csv_data/data_import_alert.dart';
-
 import 'components/record_detail_list_alert.dart';
 import 'components/record_input_alert.dart';
 import 'parts/rakuten_points_dialog.dart';
@@ -31,24 +26,29 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<HomeScreen> {
-  List<CategoryName>? categoryNameList;
-
-  List<ActionName>? actionNameList;
-
-  List<Record>? recordList;
-
-  Map<String, Record> recordMap = <String, Record>{};
-
-  List<RecordDetail>? recordDetailList;
-
-  Map<String, List<RecordDetail>> recordDetailMap = <String, List<RecordDetail>>{};
-
   List<GlobalKey> globalKeyList = <GlobalKey<State<StatefulWidget>>>[];
+
+  List<String> yearmonthList = <String>[];
 
   ///
   @override
   void initState() {
     super.initState();
+
+    //-------------------------------------------------------//
+    final DateTime startDate = DateTime(2024, 3, 12);
+
+    final DateTime today = DateTime.now();
+
+    final int diff = today.difference(startDate).inDays;
+
+    for (int i = 0; i < diff + 1; i++) {
+      final String yearmonth = startDate.add(Duration(days: i)).yyyymm;
+      if (!yearmonthList.contains(yearmonth)) {
+        yearmonthList.add(yearmonth);
+      }
+    }
+    //-------------------------------------------------------//
 
     // ignore: always_specify_types
     globalKeyList = List.generate(300, (int index) => GlobalKey());
@@ -60,115 +60,178 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   }
 
   ///
-  void _init() {
-    _makeCategoryNameList();
-
-    _makeActionNameList();
-
-    _makeRecordList();
-
-    _makeRecordDetailList();
-  }
-
-  ///
   @override
   Widget build(BuildContext context) {
     // ignore: always_specify_types
-    Future(_init);
+    return FutureBuilder(
+      future: Future.wait(<Future<List<Object>>>[
+        widget.isar.categoryNames.where().findAll(),
+        widget.isar.actionNames.where().findAll(),
+        widget.isar.records.where().findAll(),
+        widget.isar.recordDetails.where().findAll(),
+      ]),
+      builder: (BuildContext context, AsyncSnapshot<List<List<Object>>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text('エラー: ${snapshot.error}');
+        } else {
+          final List<CategoryName> categoryNameList = snapshot.data![0] as List<CategoryName>;
+          final List<ActionName> actionNameList = snapshot.data![1] as List<ActionName>;
+          final List<Record> recordList = snapshot.data![2] as List<Record>;
+          final List<RecordDetail> recordDetailList = snapshot.data![3] as List<RecordDetail>;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Rakuten Point'),
+          final Map<String, Record> recordMap = <String, Record>{};
+          for (final Record element in recordList) {
+            recordMap[element.date] = element;
+          }
 
-        centerTitle: true,
+          final Map<String, List<RecordDetail>> recordDetailMap = <String, List<RecordDetail>>{};
+          for (final RecordDetail element in recordDetailList) {
+            (recordDetailMap[element.date] ??= <RecordDetail>[]).add(element);
+          }
 
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              appParamNotifier.setSelectedListYearmonth(yearmonth: DateTime.now().yyyymm);
+          //================================//
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) async => scrollToIndex(
+              yearmonthList.indexWhere((String element) => element == appParamState.selectedListYearmonth),
+            ),
+          );
+          //================================//
 
-              Navigator.pushReplacement(
-                context,
-                // ignore: inference_failure_on_instance_creation, always_specify_types
-                MaterialPageRoute(builder: (context) => HomeScreen(isar: widget.isar)),
-              );
-            },
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Rakuten Point'),
 
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: <Widget>[
-            displayYearmonthList(),
+              centerTitle: true,
 
-            Expanded(child: displayRecordList()),
+              actions: <Widget>[
+                IconButton(
+                  onPressed: () {
+                    appParamNotifier.setSelectedListYearmonth(yearmonth: DateTime.now().yyyymm);
 
-            const SizedBox(height: 50),
-          ],
-        ),
-      ),
-
-      drawer: Drawer(
-        backgroundColor: Colors.blueGrey.withOpacity(0.2),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const SizedBox(height: 100),
-
-              TextButton(
-                onPressed: () {
-                  RakutenPointsDialog(
-                    context: context,
-                    widget: CategoryNameInputAlert(isar: widget.isar, categoryNameList: categoryNameList),
-                    clearBarrierColor: true,
-                  );
-                },
-                child: const Text('input category'),
-              ),
-
-              TextButton(
-                onPressed: () {
-                  RakutenPointsDialog(
-                    context: context,
-                    widget: ActionNameInputAlert(isar: widget.isar, actionNameList: actionNameList),
-                    clearBarrierColor: true,
-                  );
-                },
-                child: const Text('input action'),
-              ),
-
-              Divider(color: Colors.white.withOpacity(0.4), thickness: 5),
-
-              TextButton(
-                onPressed: () => RakutenPointsDialog(
-                  context: context,
-                  widget: DataExportAlert(isar: widget.isar),
-                  clearBarrierColor: true,
+                    Navigator.pushReplacement(
+                      context,
+                      // ignore: inference_failure_on_instance_creation, always_specify_types
+                      MaterialPageRoute(builder: (context) => HomeScreen(isar: widget.isar)),
+                    );
+                  },
+                  icon: const Icon(Icons.refresh),
                 ),
-                child: const Text('データエクスポート'),
+              ],
+            ),
+
+            body: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                children: <Widget>[
+                  displayYearmonthList(),
+
+                  Expanded(
+                    child: displayRecordList(recordMap: recordMap, recordDetailMap: recordDetailMap),
+                  ),
+
+                  const SizedBox(height: 50),
+                ],
               ),
-              TextButton(
-                onPressed: () => RakutenPointsDialog(
-                  context: context,
-                  widget: DataImportAlert(isar: widget.isar),
-                  clearBarrierColor: true,
+            ),
+
+            drawer: Drawer(
+              backgroundColor: Colors.blueGrey.withOpacity(0.2),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const SizedBox(height: 100),
+
+                    TextButton(
+                      onPressed: () {
+                        RakutenPointsDialog(
+                          context: context,
+                          widget: CategoryNameInputAlert(isar: widget.isar, categoryNameList: categoryNameList),
+                          clearBarrierColor: true,
+                        );
+                      },
+                      child: const Text('input category'),
+                    ),
+
+                    TextButton(
+                      onPressed: () {
+                        RakutenPointsDialog(
+                          context: context,
+                          widget: ActionNameInputAlert(isar: widget.isar, actionNameList: actionNameList),
+                          clearBarrierColor: true,
+                        );
+                      },
+                      child: const Text('input action'),
+                    ),
+
+                    Divider(color: Colors.white.withOpacity(0.4), thickness: 5),
+
+                    TextButton(
+                      onPressed: () => RakutenPointsDialog(
+                        context: context,
+                        widget: DataExportAlert(isar: widget.isar),
+                        clearBarrierColor: true,
+                      ),
+                      child: const Text('データエクスポート'),
+                    ),
+                    TextButton(
+                      onPressed: () => RakutenPointsDialog(
+                        context: context,
+                        widget: DataImportAlert(isar: widget.isar),
+                        clearBarrierColor: true,
+                      ),
+                      child: const Text('データインポート'),
+                    ),
+                  ],
                 ),
-                child: const Text('データインポート'),
               ),
-            ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  ///
+  Widget displayYearmonthList() {
+    final List<Widget> list = <Widget>[];
+
+    for (int i = 0; i < yearmonthList.length; i++) {
+      list.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: GestureDetector(
+            onTap: () => appParamNotifier.setSelectedListYearmonth(yearmonth: yearmonthList[i]),
+            child: CircleAvatar(
+              backgroundColor: (yearmonthList[i] == appParamState.selectedListYearmonth)
+                  ? Colors.yellowAccent.withValues(alpha: 0.2)
+                  : Colors.blueGrey.withValues(alpha: 0.2),
+
+              child: Text(yearmonthList[i], style: const TextStyle(fontSize: 10)),
+            ),
           ),
         ),
+      );
+    }
+
+    return SizedBox(
+      height: 50,
+
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: list),
       ),
     );
   }
 
   ///
-  Widget displayRecordList() {
+  Widget displayRecordList({
+    required Map<String, Record> recordMap,
+    required Map<String, List<RecordDetail>> recordDetailMap,
+  }) {
     final List<Widget> list = <Widget>[];
 
     final DateTime startDate = DateTime(2024, 3, 12);
@@ -376,96 +439,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     }
 
     return SingleChildScrollView(child: Column(children: list));
-  }
-
-  ///
-  Widget displayYearmonthList() {
-    final List<Widget> list = <Widget>[];
-
-    final DateTime startDate = DateTime(2024, 3, 12);
-
-    final DateTime today = DateTime.now();
-
-    final int diff = today.difference(startDate).inDays;
-
-    final List<String> yearmonthList = <String>[];
-    for (int i = 0; i < diff + 1; i++) {
-      final String yearmonth = startDate.add(Duration(days: i)).yyyymm;
-      if (!yearmonthList.contains(yearmonth)) {
-        yearmonthList.add(yearmonth);
-      }
-    }
-
-    for (int i = 0; i < yearmonthList.length; i++) {
-      list.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: GestureDetector(
-            onTap: () {
-              appParamNotifier.setSelectedListYearmonth(yearmonth: yearmonthList[i]);
-
-              scrollToIndex(i);
-            },
-            child: CircleAvatar(
-              backgroundColor: (yearmonthList[i] == appParamState.selectedListYearmonth)
-                  ? Colors.yellowAccent.withValues(alpha: 0.2)
-                  : Colors.blueGrey.withValues(alpha: 0.2),
-
-              child: Text(yearmonthList[i], style: const TextStyle(fontSize: 10)),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: 50,
-
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(children: list),
-      ),
-    );
-  }
-
-  ///
-  Future<void> _makeCategoryNameList() async => CategoryNamesRepository()
-      .getCategoryNameList(isar: widget.isar)
-      .then((List<CategoryName>? value) => categoryNameList = value);
-
-  ///
-  Future<void> _makeActionNameList() async => ActionNamesRepository()
-      .getActionNameList(isar: widget.isar)
-      .then((List<ActionName>? value) => actionNameList = value);
-
-  ///
-  Future<void> _makeRecordList() async {
-    recordMap.clear();
-
-    return RecordsRepository().getRecordList(isar: widget.isar).then((List<Record>? value) {
-      recordList = value;
-
-      if (value != null) {
-        for (final Record element in value) {
-          recordMap[element.date] = element;
-        }
-      }
-    });
-  }
-
-  ///
-  Future<void> _makeRecordDetailList() async {
-    recordDetailMap = <String, List<RecordDetail>>{};
-
-    return RecordDetailsRepository().getRecordDetailList(isar: widget.isar).then((List<RecordDetail>? value) {
-      recordDetailList = value;
-
-      if (value != null) {
-        for (final RecordDetail element in value) {
-          (recordDetailMap[element.date] ??= <RecordDetail>[]).add(element);
-        }
-      }
-    });
   }
 
   ///
