@@ -26,9 +26,11 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<HomeScreen> {
+  List<String> yearmonthList = <String>[];
+
   List<GlobalKey> globalKeyList = <GlobalKey<State<StatefulWidget>>>[];
 
-  List<String> yearmonthList = <String>[];
+  List<GlobalKey> globalKeyList2 = <GlobalKey<State<StatefulWidget>>>[];
 
   ///
   @override
@@ -52,6 +54,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
     // ignore: always_specify_types
     globalKeyList = List.generate(300, (int index) => GlobalKey());
+
+    // ignore: always_specify_types
+    globalKeyList2 = List.generate(300, (int index) => GlobalKey());
 
     // ignore: always_specify_types
     Future(() {
@@ -92,11 +97,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
           }
 
           //================================//
-          WidgetsBinding.instance.addPostFrameCallback(
-            (_) async => scrollToIndex(
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            scrollToIndex(yearmonthList.indexWhere((String element) => element == appParamState.selectedListYearmonth));
+
+            scrollToIndex2(
               yearmonthList.indexWhere((String element) => element == appParamState.selectedListYearmonth),
-            ),
-          );
+            );
+          });
           //================================//
 
           return Scaffold(
@@ -145,45 +152,62 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                   children: <Widget>[
                     const SizedBox(height: 100),
 
-                    TextButton(
-                      onPressed: () {
-                        RakutenPointsDialog(
-                          context: context,
-                          widget: CategoryNameInputAlert(isar: widget.isar, categoryNameList: categoryNameList),
-                          clearBarrierColor: true,
-                        );
-                      },
-                      child: const Text('input category'),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: GestureDetector(
+                        onTap: () {
+                          RakutenPointsDialog(
+                            context: context,
+                            widget: CategoryNameInputAlert(isar: widget.isar, categoryNameList: categoryNameList),
+                            clearBarrierColor: true,
+                          );
+                        },
+                        child: const Row(children: <Widget>[Text('カテゴリデータ'), SizedBox.shrink()]),
+                      ),
                     ),
 
-                    TextButton(
-                      onPressed: () {
-                        RakutenPointsDialog(
-                          context: context,
-                          widget: ActionNameInputAlert(isar: widget.isar, actionNameList: actionNameList),
-                          clearBarrierColor: true,
-                        );
-                      },
-                      child: const Text('input action'),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: GestureDetector(
+                        onTap: () {
+                          RakutenPointsDialog(
+                            context: context,
+                            widget: ActionNameInputAlert(isar: widget.isar, actionNameList: actionNameList),
+                            clearBarrierColor: true,
+                          );
+                        },
+                        child: const Row(children: <Widget>[Text('アクションデータ'), SizedBox.shrink()]),
+                      ),
                     ),
 
                     Divider(color: Colors.white.withOpacity(0.4), thickness: 5),
 
-                    TextButton(
-                      onPressed: () => RakutenPointsDialog(
-                        context: context,
-                        widget: DataExportAlert(isar: widget.isar),
-                        clearBarrierColor: true,
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: GestureDetector(
+                        onTap: () {
+                          RakutenPointsDialog(
+                            context: context,
+                            widget: DataExportAlert(isar: widget.isar),
+                            clearBarrierColor: true,
+                          );
+                        },
+                        child: const Row(children: <Widget>[Text('データエクスポート'), SizedBox.shrink()]),
                       ),
-                      child: const Text('データエクスポート'),
                     ),
-                    TextButton(
-                      onPressed: () => RakutenPointsDialog(
-                        context: context,
-                        widget: DataImportAlert(isar: widget.isar),
-                        clearBarrierColor: true,
+
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: GestureDetector(
+                        onTap: () {
+                          RakutenPointsDialog(
+                            context: context,
+                            widget: DataImportAlert(isar: widget.isar),
+                            clearBarrierColor: true,
+                          );
+                        },
+                        child: const Row(children: <Widget>[Text('データインポート'), SizedBox.shrink()]),
                       ),
-                      child: const Text('データインポート'),
                     ),
                   ],
                 ),
@@ -202,6 +226,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
     for (int i = 0; i < yearmonthList.length; i++) {
       list.add(
         Padding(
+          key: globalKeyList2[i],
+
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: GestureDetector(
             onTap: () => appParamNotifier.setSelectedListYearmonth(yearmonth: yearmonthList[i]),
@@ -444,6 +470,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   ///
   Future<void> scrollToIndex(int index) async {
     final BuildContext target = globalKeyList[index].currentContext!;
+
+    await Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 1000));
+  }
+
+  ///
+  Future<void> scrollToIndex2(int index) async {
+    final BuildContext target = globalKeyList2[index].currentContext!;
 
     await Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 1000));
   }

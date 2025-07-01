@@ -240,6 +240,22 @@ class _DataImportAlertState extends State<DataImportAlert> {
       return;
     }
 
+    await widget.isar.writeTxn(() async {
+      switch (csvName) {
+        case 'actionNames':
+          await widget.isar.actionNames.clear();
+
+        case 'categoryNames':
+          await widget.isar.categoryNames.clear();
+
+        case 'records':
+          await widget.isar.records.clear();
+
+        case 'recordDetails':
+          await widget.isar.recordDetails.clear();
+      }
+    });
+
     switch (csvName) {
       case 'actionNames':
         ActionNamesRepository()
