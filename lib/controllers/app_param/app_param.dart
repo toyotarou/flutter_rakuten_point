@@ -11,9 +11,16 @@ part 'app_param.g.dart';
 class AppParamState with _$AppParamState {
   const factory AppParamState({
     @Default('') String selectedDate,
+
+    ///
     @Default('') String selectedCategory,
     @Default('') String selectedAction,
+
+    ///
     @Default('') String selectedListYearmonth,
+
+    ///
+    @Default(false) bool isOpenedRakutenPointDialog,
   }) = _AppParamState;
 }
 
@@ -37,4 +44,7 @@ class AppParam extends _$AppParam {
   ///
   void setSelectedListYearmonth({required String yearmonth}) =>
       state = state.copyWith(selectedListYearmonth: yearmonth);
+
+  ///
+  void setIsOpenedRakutenPointDialog({required bool flag}) => state = state.copyWith(isOpenedRakutenPointDialog: flag);
 }

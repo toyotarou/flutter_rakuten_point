@@ -3,8 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// import '../../../controllers//app_params/app_params_notifier.dart';
-// import 'money_overlay.dart';
+import '../../controllers/app_param/app_param.dart';
 
 Future<void> RakutenPointsDialog({
   required BuildContext context,
@@ -35,18 +34,15 @@ Future<void> RakutenPointsDialog({
     },
     // ignore: always_specify_types
   ).then((value) {
-    // // ignore: use_if_null_to_convert_nulls_to_bools
-    // if (executeFunctionWhenDialogClose == true) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     final ModalRoute<Object?>? route = ModalRoute.of(context);
-    //     if (route != null && route.isCurrent) {
-    //       closeAllOverlays(ref: ref!);
-    //
-    //       if (from == 'AllTotalMoneyGraphPage') {
-    //         ref.read(appParamProvider.notifier).setSelectedGraphMonth(month: -1);
-    //       }
-    //     }
-    //   });
-    // }
+    // ignore: use_if_null_to_convert_nulls_to_bools
+    if (executeFunctionWhenDialogClose == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (from == 'HomeScreen' || from == 'RecordDetailListAlert') {
+          if (ref != null) {
+            ref.read(appParamProvider.notifier).setIsOpenedRakutenPointDialog(flag: false);
+          }
+        }
+      });
+    }
   });
 }

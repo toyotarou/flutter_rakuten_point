@@ -65,24 +65,24 @@ class _RecordDetailListAlertState extends ConsumerState<RecordDetailListAlert>
                         onPressed: () {
                           recordDetailNotifier.clearInputValue();
 
+                          appParamNotifier.setIsOpenedRakutenPointDialog(flag: true);
+
                           RakutenPointsDialog(
                             context: context,
                             widget: RecordDetailInputAlert(
                               isar: widget.isar,
                               date: widget.date,
                               record: widget.record,
-
                               sagaku: widget.sagaku,
-
                               recordDetail: widget.recordDetail,
                             ),
-
                             clearBarrierColor: true,
+                            executeFunctionWhenDialogClose: true,
+                            from: 'RecordDetailListAlert',
+                            ref: ref,
                           );
                         },
-
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.pinkAccent.withOpacity(0.2)),
-
                         child: const Text('input'),
                       ),
                     ],

@@ -7,7 +7,7 @@ part of 'record_detail.dart';
 // **************************************************************************
 
 String _$recordDetailControllerHash() =>
-    r'e1b68889f15b3f789b6622e516560ed9e233bce6';
+    r'be1ef7f3a613919560476dc693082b427f401bea';
 
 /// See also [RecordDetailController].
 @ProviderFor(RecordDetailController)

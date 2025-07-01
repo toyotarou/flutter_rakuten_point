@@ -17,9 +17,16 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$AppParamState {
   String get selectedDate => throw _privateConstructorUsedError;
+
+  ///
   String get selectedCategory => throw _privateConstructorUsedError;
   String get selectedAction => throw _privateConstructorUsedError;
+
+  ///
   String get selectedListYearmonth => throw _privateConstructorUsedError;
+
+  ///
+  bool get isOpenedRakutenPointDialog => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $AppParamStateCopyWith<AppParamState> get copyWith =>
@@ -36,7 +43,8 @@ abstract class $AppParamStateCopyWith<$Res> {
       {String selectedDate,
       String selectedCategory,
       String selectedAction,
-      String selectedListYearmonth});
+      String selectedListYearmonth,
+      bool isOpenedRakutenPointDialog});
 }
 
 /// @nodoc
@@ -56,6 +64,7 @@ class _$AppParamStateCopyWithImpl<$Res, $Val extends AppParamState>
     Object? selectedCategory = null,
     Object? selectedAction = null,
     Object? selectedListYearmonth = null,
+    Object? isOpenedRakutenPointDialog = null,
   }) {
     return _then(_value.copyWith(
       selectedDate: null == selectedDate
@@ -74,6 +83,10 @@ class _$AppParamStateCopyWithImpl<$Res, $Val extends AppParamState>
           ? _value.selectedListYearmonth
           : selectedListYearmonth // ignore: cast_nullable_to_non_nullable
               as String,
+      isOpenedRakutenPointDialog: null == isOpenedRakutenPointDialog
+          ? _value.isOpenedRakutenPointDialog
+          : isOpenedRakutenPointDialog // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -90,7 +103,8 @@ abstract class _$$AppParamStateImplCopyWith<$Res>
       {String selectedDate,
       String selectedCategory,
       String selectedAction,
-      String selectedListYearmonth});
+      String selectedListYearmonth,
+      bool isOpenedRakutenPointDialog});
 }
 
 /// @nodoc
@@ -108,6 +122,7 @@ class __$$AppParamStateImplCopyWithImpl<$Res>
     Object? selectedCategory = null,
     Object? selectedAction = null,
     Object? selectedListYearmonth = null,
+    Object? isOpenedRakutenPointDialog = null,
   }) {
     return _then(_$AppParamStateImpl(
       selectedDate: null == selectedDate
@@ -126,6 +141,10 @@ class __$$AppParamStateImplCopyWithImpl<$Res>
           ? _value.selectedListYearmonth
           : selectedListYearmonth // ignore: cast_nullable_to_non_nullable
               as String,
+      isOpenedRakutenPointDialog: null == isOpenedRakutenPointDialog
+          ? _value.isOpenedRakutenPointDialog
+          : isOpenedRakutenPointDialog // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -137,24 +156,34 @@ class _$AppParamStateImpl implements _AppParamState {
       {this.selectedDate = '',
       this.selectedCategory = '',
       this.selectedAction = '',
-      this.selectedListYearmonth = ''});
+      this.selectedListYearmonth = '',
+      this.isOpenedRakutenPointDialog = false});
 
   @override
   @JsonKey()
   final String selectedDate;
+
+  ///
   @override
   @JsonKey()
   final String selectedCategory;
   @override
   @JsonKey()
   final String selectedAction;
+
+  ///
   @override
   @JsonKey()
   final String selectedListYearmonth;
 
+  ///
+  @override
+  @JsonKey()
+  final bool isOpenedRakutenPointDialog;
+
   @override
   String toString() {
-    return 'AppParamState(selectedDate: $selectedDate, selectedCategory: $selectedCategory, selectedAction: $selectedAction, selectedListYearmonth: $selectedListYearmonth)';
+    return 'AppParamState(selectedDate: $selectedDate, selectedCategory: $selectedCategory, selectedAction: $selectedAction, selectedListYearmonth: $selectedListYearmonth, isOpenedRakutenPointDialog: $isOpenedRakutenPointDialog)';
   }
 
   @override
@@ -169,12 +198,16 @@ class _$AppParamStateImpl implements _AppParamState {
             (identical(other.selectedAction, selectedAction) ||
                 other.selectedAction == selectedAction) &&
             (identical(other.selectedListYearmonth, selectedListYearmonth) ||
-                other.selectedListYearmonth == selectedListYearmonth));
+                other.selectedListYearmonth == selectedListYearmonth) &&
+            (identical(other.isOpenedRakutenPointDialog,
+                    isOpenedRakutenPointDialog) ||
+                other.isOpenedRakutenPointDialog ==
+                    isOpenedRakutenPointDialog));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, selectedDate, selectedCategory,
-      selectedAction, selectedListYearmonth);
+      selectedAction, selectedListYearmonth, isOpenedRakutenPointDialog);
 
   @JsonKey(ignore: true)
   @override
@@ -188,16 +221,25 @@ abstract class _AppParamState implements AppParamState {
       {final String selectedDate,
       final String selectedCategory,
       final String selectedAction,
-      final String selectedListYearmonth}) = _$AppParamStateImpl;
+      final String selectedListYearmonth,
+      final bool isOpenedRakutenPointDialog}) = _$AppParamStateImpl;
 
   @override
   String get selectedDate;
   @override
+
+  ///
   String get selectedCategory;
   @override
   String get selectedAction;
   @override
+
+  ///
   String get selectedListYearmonth;
+  @override
+
+  ///
+  bool get isOpenedRakutenPointDialog;
   @override
   @JsonKey(ignore: true)
   _$$AppParamStateImplCopyWith<_$AppParamStateImpl> get copyWith =>

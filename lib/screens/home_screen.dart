@@ -97,13 +97,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
           }
 
           //================================//
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            scrollToIndex(yearmonthList.indexWhere((String element) => element == appParamState.selectedListYearmonth));
+          if (!appParamState.isOpenedRakutenPointDialog) {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              scrollToIndex(
+                yearmonthList.indexWhere((String element) => element == appParamState.selectedListYearmonth),
+              );
 
-            scrollToIndex2(
-              yearmonthList.indexWhere((String element) => element == appParamState.selectedListYearmonth),
-            );
-          });
+              scrollToIndex2(
+                yearmonthList.indexWhere((String element) => element == appParamState.selectedListYearmonth),
+              );
+            });
+          }
           //================================//
 
           return Scaffold(
@@ -156,10 +160,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                       padding: const EdgeInsets.all(10),
                       child: GestureDetector(
                         onTap: () {
+                          appParamNotifier.setIsOpenedRakutenPointDialog(flag: true);
+
                           RakutenPointsDialog(
                             context: context,
                             widget: CategoryNameInputAlert(isar: widget.isar, categoryNameList: categoryNameList),
                             clearBarrierColor: true,
+                            executeFunctionWhenDialogClose: true,
+                            from: 'HomeScreen',
+                            ref: ref,
                           );
                         },
                         child: const Row(children: <Widget>[Text('カテゴリデータ'), SizedBox.shrink()]),
@@ -170,10 +179,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                       padding: const EdgeInsets.all(10),
                       child: GestureDetector(
                         onTap: () {
+                          appParamNotifier.setIsOpenedRakutenPointDialog(flag: true);
+
                           RakutenPointsDialog(
                             context: context,
                             widget: ActionNameInputAlert(isar: widget.isar, actionNameList: actionNameList),
                             clearBarrierColor: true,
+                            executeFunctionWhenDialogClose: true,
+                            from: 'HomeScreen',
+                            ref: ref,
                           );
                         },
                         child: const Row(children: <Widget>[Text('アクションデータ'), SizedBox.shrink()]),
@@ -186,10 +200,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                       padding: const EdgeInsets.all(10),
                       child: GestureDetector(
                         onTap: () {
+                          appParamNotifier.setIsOpenedRakutenPointDialog(flag: true);
+
                           RakutenPointsDialog(
                             context: context,
                             widget: DataExportAlert(isar: widget.isar),
                             clearBarrierColor: true,
+                            executeFunctionWhenDialogClose: true,
+                            from: 'HomeScreen',
+                            ref: ref,
                           );
                         },
                         child: const Row(children: <Widget>[Text('データエクスポート'), SizedBox.shrink()]),
@@ -200,10 +219,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                       padding: const EdgeInsets.all(10),
                       child: GestureDetector(
                         onTap: () {
+                          appParamNotifier.setIsOpenedRakutenPointDialog(flag: true);
+
                           RakutenPointsDialog(
                             context: context,
                             widget: DataImportAlert(isar: widget.isar),
                             clearBarrierColor: true,
+                            executeFunctionWhenDialogClose: true,
+                            from: 'HomeScreen',
+                            ref: ref,
                           );
                         },
                         child: const Row(children: <Widget>[Text('データインポート'), SizedBox.shrink()]),
@@ -385,6 +409,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
 
                                   GestureDetector(
                                     onTap: () {
+                                      appParamNotifier.setIsOpenedRakutenPointDialog(flag: true);
+
                                       RakutenPointsDialog(
                                         context: context,
                                         widget: RecordInputAlert(
@@ -393,6 +419,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                                           record: recordMap[date],
                                         ),
                                         clearBarrierColor: true,
+                                        executeFunctionWhenDialogClose: true,
+                                        from: 'HomeScreen',
+                                        ref: ref,
                                       );
                                     },
                                     child: Icon(Icons.input, color: Colors.white.withValues(alpha: 0.4)),
@@ -432,18 +461,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                     child: (recordMap[date] != null && i > 0)
                         ? IconButton(
                             onPressed: () {
+                              appParamNotifier.setIsOpenedRakutenPointDialog(flag: true);
+
                               RakutenPointsDialog(
                                 context: context,
                                 widget: RecordDetailListAlert(
                                   isar: widget.isar,
                                   date: date,
                                   record: recordMap[date],
-
                                   sagaku: sagaku,
-
                                   recordDetail: recordDetailMap[date],
                                 ),
                                 clearBarrierColor: true,
+                                executeFunctionWhenDialogClose: true,
+                                from: 'HomeScreen',
+                                ref: ref,
                               );
                             },
                             icon: Icon(Icons.info_outline, color: Colors.white.withValues(alpha: 0.4)),
