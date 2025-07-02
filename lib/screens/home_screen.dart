@@ -403,10 +403,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                             children: <Widget>[
                               Row(
                                 children: <Widget>[
-                                  CircleAvatar(radius: 10, backgroundColor: circleAvatarColor),
-
-                                  const SizedBox(width: 20),
-
                                   GestureDetector(
                                     onTap: () {
                                       appParamNotifier.setIsOpenedRakutenPointDialog(flag: true);
@@ -426,6 +422,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                                     },
                                     child: Icon(Icons.input, color: Colors.white.withValues(alpha: 0.4)),
                                   ),
+
+                                  const SizedBox(width: 20),
+
+                                  CircleAvatar(radius: 10, backgroundColor: circleAvatarColor),
                                 ],
                               ),
 
