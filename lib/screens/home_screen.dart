@@ -13,6 +13,7 @@ import 'components/category_name_input_alert.dart';
 import 'components/csv_data/data_export_alert.dart';
 import 'components/csv_data/data_import_alert.dart';
 import 'components/record_detail_list_alert.dart';
+import 'components/record_detail_summary_alert.dart';
 import 'components/record_input_alert.dart';
 import 'parts/rakuten_points_dialog.dart';
 
@@ -139,7 +140,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
                   displayYearmonthList(),
 
                   Expanded(
-                    child: displayRecordList(recordMap: recordMap, recordDetailMap: recordDetailMap),
+                    child: displayRecordList(
+                      recordMap: recordMap,
+                      recordDetailMap: recordDetailMap,
+                      categoryNameList: categoryNameList,
+                      actionNameList: actionNameList,
+                      recordDetailList: recordDetailList,
+                    ),
                   ),
 
                   const SizedBox(height: 50),
@@ -281,6 +288,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
   Widget displayRecordList({
     required Map<String, Record> recordMap,
     required Map<String, List<RecordDetail>> recordDetailMap,
+    required List<CategoryName> categoryNameList,
+    required List<ActionName> actionNameList,
+    required List<RecordDetail> recordDetailList,
   }) {
     final List<Widget> list = <Widget>[];
 
@@ -311,7 +321,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with ControllersMixin<H
               style: const TextStyle(color: Colors.white),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[Text(yearmonth), const SizedBox.shrink()],
+                children: <Widget>[
+                  Text(yearmonth),
+
+                  GestureDetector(
+                    onTap: () {
+                      RakutenPointsDialog(
+                        context: context,
+                        widget: RecordDetailSummaryAlert(
+                          yearmonth: yearmonth,
+                          categoryNameList: categoryNameList,
+                          actionNameList: actionNameList,
+                          recordDetailList: recordDetailList,
+                        ),
+
+                        clearBarrierColor: true,
+                      );
+                    },
+                    child: const Icon(Icons.list),
+                  ),
+                ],
               ),
             ),
           ),
